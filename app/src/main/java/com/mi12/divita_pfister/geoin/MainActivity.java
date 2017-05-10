@@ -54,7 +54,7 @@ public class MainActivity extends Activity implements SensorEventListener, View.
 
         senSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         senAccelerometer = senSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        senSensorManager.registerListener(this, senAccelerometer, SensorManager.SENSOR_DELAY_NORMAL);
+        senSensorManager.registerListener(this, senAccelerometer, SensorManager.SENSOR_DELAY_FASTEST);
 
         cmp = 0;
         result_time = new long[10000];
@@ -62,24 +62,24 @@ public class MainActivity extends Activity implements SensorEventListener, View.
 
     @Override
     public void onSensorChanged(SensorEvent sensorEvent) {
+        int max_loop = 100;
         end_time = System.nanoTime();
-        if (start_wcet_clicked == true){
+        if (start_wcet_clicked){
             result_time[cmp] = end_time - start_time;
-            cmp++;
-            if (cmp == 1000){
+            if (cmp < max_loop) cmp++;
+            else {
                 long min = result_time[0], max = result_time[0];
                 long mean = 0;
-                for (int i=0;i<1000;i++){
+                for (int i=0;i<max_loop;i++){
                     if (min > result_time[i]) min = result_time[i];
                     else if (max < result_time[i]) max = result_time[i];
                     mean += result_time[i];
                 }
-                mean /= 1000;
+                mean /= max_loop;
                 WCET_result.setText("Min: " + Long.toString(min) + " ns\nMax : " + Long.toString(max) + " ns\nMean: " + Long.toString(mean) + " ns" );
             }
         }
         Sensor mySensor = sensorEvent.sensor;
-        //Wcet(start_time, end_time);
 
         if (mySensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             float x = sensorEvent.values[0];
@@ -95,20 +95,7 @@ public class MainActivity extends Activity implements SensorEventListener, View.
 
 
     @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-
-    }
-
-    /*
-    public void Wcet(long start_time, long end_time) {
-        if (start_wcet_clicked == true) {
-            start_wcet_clicked = false;
-            result_time = end_time - start_time;
-            WCET_result.setText(Long.toString(result_time) + " nanosecondes");
-        }
-    }
-
-    */
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 
     protected void onPause() {
         super.onPause();
