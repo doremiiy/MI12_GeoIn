@@ -1,7 +1,6 @@
 package com.mi12.divita_pfister.geoin;
 
 
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.app.Activity;
 import android.hardware.SensorEventListener;
@@ -10,8 +9,8 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorManager;
 import android.content.Context;
 import android.os.Environment;
+
 import android.os.SystemClock;
-import android.provider.Settings;
 import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
@@ -20,12 +19,11 @@ import android.view.View;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.ArrayList;
 import java.util.List;
 
-public class MainActivity extends Activity implements SensorEventListener, View.OnClickListener {
+public class MainActivity extends Activity implements /*SensorEventListener,*/ View.OnClickListener {
 
     private int SENSOR_DELAY = 1000;
 
@@ -33,7 +31,7 @@ public class MainActivity extends Activity implements SensorEventListener, View.
     private TextView labelY;
     private TextView labelZ;
     private TextView info;
-
+    private Orientation or;
     private Button acquisition;
 
     private boolean acquisition_started = false;
@@ -61,13 +59,15 @@ public class MainActivity extends Activity implements SensorEventListener, View.
         labelY.setText("Y value");
         labelZ.setText("Z value");
 
-        senSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
+        or = new Orientation(this);
+
+        /*senSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
         senAccelerometer = senSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        senSensorManager.registerListener(this, senAccelerometer, SENSOR_DELAY);
+        senSensorManager.registerListener(this, senAccelerometer, SENSOR_DELAY);*/
 
     }
 
-    @Override
+    /*@Override
     public void onSensorChanged(SensorEvent sensorEvent) {
         Sensor mySensor = sensorEvent.sensor;
 
@@ -88,8 +88,7 @@ public class MainActivity extends Activity implements SensorEventListener, View.
 
 
     @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-    }
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 
     protected void onPause() {
         super.onPause();
@@ -99,31 +98,17 @@ public class MainActivity extends Activity implements SensorEventListener, View.
     protected void onResume() {
         super.onResume();
         senSensorManager.registerListener(this, senAccelerometer, SENSOR_DELAY);
-    }
+    }*/
 
     public void onClick(View view) {
         if (view.equals(acquisition)) {
-            if (acquisition_started == false) {
-                AccelerometerValue_l = new ArrayList<Accelerometer>();
-                acquisition_started = true;
-                acquisition.setText("Arrêter l'acquisition");
-            } else {
-                acquisition_started = false;
-                AccelerometerValue_a = AccelerometerValue_l.toArray(new Accelerometer[AccelerometerValue_l.size()]);
-                acquisition.setText("Commencer l'acquisition");
-
-                File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-                File file = new File(path, "test.txt");
-                try {
-                    path.mkdirs();
-                    OutputStream os = new FileOutputStream(file);
-                    for (int i = 0; i < AccelerometerValue_a.length; i++) {
-                        os.write((AccelerometerValue_a[i].toString() + "\n").getBytes());
-                    }
-                    os.close();
-                } catch (IOException e) {
-                    Log.w("External Storage", "Error writing" + file, e);
-                }
+            float test[];
+            while(true) {
+                test = or.getOrientationAngles();
+                labelX.setText(Float.toString(test[0] * 180 / (float) Math.PI));
+                labelY.setText(Float.toString(test[1] * 180 / (float) Math.PI));
+                labelZ.setText(Float.toString(test[2] * 180 / (float) Math.PI));
+                SystemClock.sleep(100);
             }
         }
     }

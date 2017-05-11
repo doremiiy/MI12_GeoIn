@@ -1,8 +1,5 @@
 package com.mi12.divita_pfister.geoin;
 
-/**
- * Created by Morgan on 10/05/2017.
- */
 
 public class Accelerometer {
     private float x;
