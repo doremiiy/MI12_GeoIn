@@ -3,10 +3,6 @@ package com.mi12.divita_pfister.geoin;
 
 import android.os.Bundle;
 import android.app.Activity;
-import android.hardware.SensorEventListener;
-import android.hardware.Sensor;
-import android.hardware.SensorEvent;
-import android.hardware.SensorManager;
 import android.content.Context;
 import android.os.Environment;
 
@@ -16,16 +12,9 @@ import android.widget.Button;
 import android.widget.TextView;
 import android.view.View;
 
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.util.ArrayList;
-import java.util.List;
 
-public class MainActivity extends Activity implements /*SensorEventListener,*/ View.OnClickListener {
+public class MainActivity extends Activity implements View.OnClickListener {
 
-    private int SENSOR_DELAY = 1000;
 
     private TextView labelX;
     private TextView labelY;
@@ -36,11 +25,6 @@ public class MainActivity extends Activity implements /*SensorEventListener,*/ V
 
     private boolean acquisition_started = false;
 
-    private SensorManager senSensorManager;
-    private Sensor senAccelerometer;
-
-    private List<Accelerometer> AccelerometerValue_l;
-    private Accelerometer[] AccelerometerValue_a;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -60,45 +44,8 @@ public class MainActivity extends Activity implements /*SensorEventListener,*/ V
         labelZ.setText("Z value");
 
         or = new Orientation(this);
-
-        /*senSensorManager = (SensorManager) getSystemService(Context.SENSOR_SERVICE);
-        senAccelerometer = senSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        senSensorManager.registerListener(this, senAccelerometer, SENSOR_DELAY);*/
-
     }
 
-    /*@Override
-    public void onSensorChanged(SensorEvent sensorEvent) {
-        Sensor mySensor = sensorEvent.sensor;
-
-        if (mySensor.getType() == Sensor.TYPE_ACCELEROMETER && acquisition_started == true) {
-            float x = sensorEvent.values[0];
-            float y = sensorEvent.values[1];
-            float z = sensorEvent.values[2];
-
-            Accelerometer AccelerometerValue = new Accelerometer(x, y, z);
-
-            labelX.setText(Float.toString(x));
-            labelY.setText(Float.toString(y));
-            labelZ.setText(Float.toString(z));
-
-            AccelerometerValue_l.add(AccelerometerValue);
-        }
-    }
-
-
-    @Override
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
-
-    protected void onPause() {
-        super.onPause();
-        senSensorManager.unregisterListener(this);
-    }
-
-    protected void onResume() {
-        super.onResume();
-        senSensorManager.registerListener(this, senAccelerometer, SENSOR_DELAY);
-    }*/
 
     public void onClick(View view) {
         if (view.equals(acquisition)) {

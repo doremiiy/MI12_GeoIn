@@ -10,17 +10,16 @@ import android.content.Context;
 
 public class Orientation implements SensorEventListener {
 
-    private int SENSOR_DELAY = 1000;
-    Context mContext;
+    private Context mContext;
 
-    private final float[] mAccelerometerReading = new float[3];
-    private final float[] mMagnetometerReading = new float[3];
-
-    private final float[] mRotationMatrix = new float[9];
-    private final float[] mOrientationAngles = new float[3];
+    private float[] mAccelerometerReading = new float[3];
+    private float[] mMagnetometerReading = new float[3];
+    private float[] mRotationMatrix = new float[9];
+    private float[] mOrientationAngles = new float[3];
 
     private SensorManager mSensorManager;
     private Sensor sensorAccelerometer, sensorMagneticField;
+    private int SENSOR_DELAY = 1000;
 
     public Orientation(Context mContext){
         mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
