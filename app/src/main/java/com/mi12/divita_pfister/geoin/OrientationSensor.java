@@ -8,21 +8,23 @@ import android.hardware.SensorManager;
 import android.content.Context;
 
 
-public class Orientation implements SensorEventListener {
-
-    private Context mContext;
+public class OrientationSensor implements SensorEventListener {
 
     private float[] mAccelerometerReading = new float[3];
     private float[] mMagnetometerReading = new float[3];
     private float[] mRotationMatrix = new float[9];
     private float[] mOrientationAngles = new float[3];
 
+    private MainActivity display;
+
     private SensorManager mSensorManager;
     private Sensor sensorAccelerometer, sensorMagneticField;
-    private int SENSOR_DELAY = 1000;
+    private int SENSOR_DELAY = 1000000;
 
-    public Orientation(Context mContext){
-        mSensorManager = (SensorManager) mContext.getSystemService(Context.SENSOR_SERVICE);
+    public OrientationSensor(MainActivity display){
+        this.display = display;
+
+        mSensorManager = (SensorManager) display.getSystemService(Context.SENSOR_SERVICE);
         sensorAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
         sensorMagneticField = mSensorManager.getDefaultSensor(Sensor.TYPE_MAGNETIC_FIELD);
 
@@ -39,14 +41,22 @@ public class Orientation implements SensorEventListener {
             System.arraycopy(event.values, 0, mMagnetometerReading,
                     0, mMagnetometerReading.length);
         }
+
+        OrientationValue test = getOrientationAngles();
+        display.setXYZLabels(
+                Float.toString(test.azimuth * 180 / (float) Math.PI),
+                Float.toString(test.pitch * 180 / (float) Math.PI),
+                Float.toString(test.roll * 180 / (float) Math.PI)
+        );
     }
 
-    public float[] getOrientationAngles() {
+
+    public OrientationValue getOrientationAngles() {
         mSensorManager.getRotationMatrix(
             mRotationMatrix, null, mAccelerometerReading, mMagnetometerReading
         );
         mSensorManager.getOrientation(mRotationMatrix, mOrientationAngles);
-        return mOrientationAngles;
+        return new OrientationValue(mOrientationAngles);
     }
 
     public void onAccuracyChanged(Sensor sensor, int accuracy) {}

@@ -1,3 +1,4 @@
 <resources>
     <string name="app_name">GeoIn</string>
+    <string name="step_detector">android.hardware.sensor.stepdetector</string>
 </resources>

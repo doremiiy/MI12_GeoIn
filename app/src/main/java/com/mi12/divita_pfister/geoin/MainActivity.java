@@ -3,11 +3,7 @@ package com.mi12.divita_pfister.geoin;
 
 import android.os.Bundle;
 import android.app.Activity;
-import android.content.Context;
-import android.os.Environment;
 
-import android.os.SystemClock;
-import android.util.Log;
 import android.widget.Button;
 import android.widget.TextView;
 import android.view.View;
@@ -19,8 +15,9 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private TextView labelX;
     private TextView labelY;
     private TextView labelZ;
-    private TextView info;
-    private Orientation or;
+    private TextView step_number;
+    private OrientationSensor or;
+    private StepSensor st;
     private Button acquisition;
 
     private boolean acquisition_started = false;
@@ -34,7 +31,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
         labelX = (TextView) findViewById(R.id.labelX);
         labelY = (TextView) findViewById(R.id.labelY);
         labelZ = (TextView) findViewById(R.id.labelZ);
-        info = (TextView) findViewById(R.id.info);
+        step_number = (TextView) findViewById(R.id.step_number);
 
         acquisition = (Button) findViewById(R.id.acquisition);
         acquisition.setOnClickListener(MainActivity.this);
@@ -43,20 +40,24 @@ public class MainActivity extends Activity implements View.OnClickListener {
         labelY.setText("Y value");
         labelZ.setText("Z value");
 
-        or = new Orientation(this);
+        //or = new OrientationSensor(this);
+        st = new StepSensor(this);
     }
 
 
     public void onClick(View view) {
         if (view.equals(acquisition)) {
-            float test[];
-            while(true) {
-                test = or.getOrientationAngles();
-                labelX.setText(Float.toString(test[0] * 180 / (float) Math.PI));
-                labelY.setText(Float.toString(test[1] * 180 / (float) Math.PI));
-                labelZ.setText(Float.toString(test[2] * 180 / (float) Math.PI));
-                SystemClock.sleep(100);
-            }
+
         }
+    }
+    public void setXYZLabels (String a, String b, String c){
+        labelX.setText(a);
+        labelY.setText(b);
+        labelZ.setText(c);
+    }
+    public void displaySetStep() {
+        int number = Integer.parseInt(step_number.getText().toString());
+        number += 1;
+        step_number.setText(Integer.toString(number));
     }
 }
