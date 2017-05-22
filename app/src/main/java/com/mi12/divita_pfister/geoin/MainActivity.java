@@ -107,7 +107,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
             }
         }
         if(view.equals(step_counter_reset_button)){
-            Accelerometer.resetAccelerometerValueList();
+            Accelerometer.resetStepCounter();
         }
     }
 

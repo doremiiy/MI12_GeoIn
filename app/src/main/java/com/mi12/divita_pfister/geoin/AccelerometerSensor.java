@@ -10,6 +10,7 @@ import android.util.FloatProperty;
 import android.util.Log;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class AccelerometerSensor implements SensorEventListener {
@@ -19,7 +20,7 @@ public class AccelerometerSensor implements SensorEventListener {
 
     private SensorManager mSensorManager;
     private Sensor sensorAccelerometer;
-    private int SENSOR_DELAY = 1000;
+    private int SENSOR_DELAY = 100000;
 
     private AccelerometerValue accelerometerValue = null;
     private AccelerometerValue gravity = new AccelerometerValue(0, 0, 0);
@@ -32,7 +33,15 @@ public class AccelerometerSensor implements SensorEventListener {
 
     private int stepCounter;
 
-    private float previousZvalue = 0;
+    private boolean recording_for_step_counter = false;
+    private List<Double> AccelerometerValueNormFiltered_l;
+
+    private double NORM_THRESHHOLD = 0.2;
+    private double HEIGHT_THRESHOLD = 0.2;
+
+    private double accelerometerValueNorm;
+
+    private double min_value, max_value;
     /**********/
 
     /**
@@ -46,25 +55,68 @@ public class AccelerometerSensor implements SensorEventListener {
 
         this.AccelerometerValue_l = new ArrayList<AccelerometerValue>();
 
+        this.AccelerometerValueNormFiltered_l = new ArrayList<Double>();
+
         mSensorManager = (SensorManager) display.getSystemService(Context.SENSOR_SERVICE);
         sensorAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
 
         mSensorManager.registerListener(this, sensorAccelerometer, SENSOR_DELAY);
     }
 
-    public List<AccelerometerValue> getAccelerometerValueList(){
+    /**
+     * Retourne la liste des valeurs de l'accéléromètre conservées
+     *
+     * @return
+     */
+    public List<AccelerometerValue> getAccelerometerValueList() {
         return this.AccelerometerValue_l;
     }
 
-    public void resetAccelerometerValueList(){
+    /**
+     * Remet à 0 la liste des valeurs d'accéléromètre conservées
+     */
+    public void resetAccelerometerValueList() {
         this.AccelerometerValue_l = new ArrayList<AccelerometerValue>();
     }
 
-    public int getStepCounter(){
+    /**
+     * Retourne la liste des normes filtrées de l'accéléromètre
+     *
+     * @return
+     */
+    public List<Double> getAccelerometerValueNormFiltered() {
+        return this.AccelerometerValueNormFiltered_l;
+    }
+
+    /**
+     * Remet à 0 la liste des normes filtrées de l'accéléromètre
+     */
+    public void resetAccelerometerValueNormFiltered() {
+        this.AccelerometerValueNormFiltered_l = new ArrayList<Double>();
+    }
+
+    /**
+     * Retourne le nombre de pas depuis la dernière remise à 0
+     *
+     * @return
+     */
+    public int getStepCounter() {
         return this.stepCounter;
     }
 
-    public void resetStepCounter(){
+    /**
+     * Permet de setter la valeur du champ stepcounter
+     *
+     * @param value
+     */
+    public void setStepCounter(int value) {
+        this.stepCounter = value;
+    }
+
+    /**
+     * Fonction qui remet à 0 le compteur de pas
+     */
+    public void resetStepCounter() {
         this.stepCounter = 0;
         display.setStepCounterLabel();
     }
@@ -76,38 +128,75 @@ public class AccelerometerSensor implements SensorEventListener {
      */
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            if(accelerometerValue != null){
-                previousZvalue = accelerometerValue.getZvalue();
-            }
-
+            // Filtrage de la gravité
             accelerometerValue = gravityFilter(new AccelerometerValue(event.values[0], event.values[1], event.values[2]));
+
+            accelerometerValueNorm = accelerometerValue.getNorm();
+
+            Log.w("Norm :",Double.toString(accelerometerValueNorm));
 
             display.setAccelerometerXLabel(Float.toString(accelerometerValue.getXvalue()));
             display.setAccelerometerYLabel(Float.toString(accelerometerValue.getYvalue()));
             display.setAccelerometerZLabel(Float.toString(accelerometerValue.getZvalue()));
 
-            if(accelerometerValue != null && this.acquisitionStarted == true){
+            //Récupération des valeurs pour les exporter sur scilab/matlab
+            if (this.acquisitionStarted == true) {
+                Log.w("", "here");
+                //On ajoute la valeur dans la liste
                 this.AccelerometerValue_l.add(accelerometerValue);
-                if(accelerometerValue.getZvalue() >= 0.5 && previousZvalue < 0.5){
-                    this.stepCounter += 1;
+            }
+
+            if (accelerometerValueNorm >= NORM_THRESHHOLD && recording_for_step_counter == false) {
+                Log.w("", "passed");
+                recording_for_step_counter = true;
+                this.AccelerometerValueNormFiltered_l.add(accelerometerValueNorm);
+            }
+
+            if(accelerometerValueNorm >= NORM_THRESHHOLD && recording_for_step_counter == true){
+                this.AccelerometerValueNormFiltered_l.add(accelerometerValueNorm);
+            }
+
+            if (accelerometerValueNorm < NORM_THRESHHOLD && recording_for_step_counter == true) {
+                Log.w("", "stopped");
+                Log.w("List",AccelerometerValueNormFiltered_l.toString());
+                recording_for_step_counter = false;
+                //traitement de la liste
+                max_value = Collections.max(getAccelerometerValueNormFiltered());
+                min_value = Collections.min(getAccelerometerValueNormFiltered());
+                Log.w("Min",Double.toString(min_value));
+                Log.w("Max",Double.toString(max_value));
+                if (max_value - min_value >= HEIGHT_THRESHOLD) {
+                    setStepCounter(getStepCounter() + 1);
                     display.setStepCounterLabel();
                 }
+                resetAccelerometerValueNormFiltered();
             }
         }
     }
 
-    public void switchAcquisitionState(){
+
+    /**
+     * Fonction qui change l'état de la variable acquisitionStarted lorsque l'utilisateur appuie sur le bouton
+     */
+    public void switchAcquisitionState() {
         this.acquisitionStarted = !this.acquisitionStarted;
     }
 
+    /**
+     * Fonction qui filtre la gravité sur les valeurs de l'accéléromètre
+     *
+     * @param input
+     * @return
+     */
     protected AccelerometerValue gravityFilter(AccelerometerValue input) {
-        // Isolate the force of gravity with the low-pass filter.
+        //Isolation de la gravité avec un filtre passe-bas
         gravity.setValues(
                 ALPHA * gravity.getXvalue() + (1 - ALPHA) * input.getXvalue(),
                 ALPHA * gravity.getYvalue() + (1 - ALPHA) * input.getYvalue(),
                 ALPHA * gravity.getZvalue() + (1 - ALPHA) * input.getZvalue()
         );
 
+        //On enlève ensuite la gravité aux mesures et on retourne les valeurs filtrées
         return new AccelerometerValue(
                 input.getXvalue() - gravity.getXvalue(),
                 input.getYvalue() - gravity.getYvalue(),
