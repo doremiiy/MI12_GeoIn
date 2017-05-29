@@ -1,4 +1,6 @@
 <resources>
     <string name="app_name">GeoIn</string>
     <string name="step_detector">android.hardware.sensor.stepdetector</string>
+    <string name="title_activity_maps">Map</string>
+    <string name="google_map_key">AIzaSyAQlbH3B9j9qLiOxD3CU41dZHjXOWI6m3A</string>
 </resources>

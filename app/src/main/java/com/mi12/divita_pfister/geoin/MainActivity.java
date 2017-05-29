@@ -1,6 +1,7 @@
 package com.mi12.divita_pfister.geoin;
 
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
 import android.app.Activity;
@@ -31,6 +32,11 @@ public class MainActivity extends Activity implements View.OnClickListener {
         acquisition_button = (Button) findViewById(R.id.mbutton);
         acquisition_button.setOnClickListener(MainActivity.this);
         gps = new GpsSensor(this);
+
+        // Testing maps Activity
+        // TODO: check is GPS is ready, then start the map activity
+        Intent intent = new Intent(this, MapsActivity.class);
+        startActivity(intent);
     }
 
     public void onClick(View view) {
