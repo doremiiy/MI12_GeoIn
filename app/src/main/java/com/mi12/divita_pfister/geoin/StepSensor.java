@@ -28,7 +28,7 @@ public class StepSensor implements SensorEventListener {
         if (event.sensor.getType() == Sensor.TYPE_STEP_DETECTOR) {
             // Trigger stuff here
             // Create HistoryValue
-            display.displaySetStep();
+            //display.displaySetStep();
         }
     }
     public void onAccuracyChanged(Sensor sensor, int accuracy) {}

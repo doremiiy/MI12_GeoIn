@@ -10,6 +10,7 @@ import android.content.Context;
 
 public class OrientationSensor implements SensorEventListener {
 
+    /***** Attributs *****/
     private float[] mAccelerometerReading = new float[3];
     private float[] mMagnetometerReading = new float[3];
     private float[] mRotationMatrix = new float[9];
@@ -19,7 +20,8 @@ public class OrientationSensor implements SensorEventListener {
 
     private SensorManager mSensorManager;
     private Sensor sensorAccelerometer, sensorMagneticField;
-    private int SENSOR_DELAY = 1000000;
+    private int SENSOR_DELAY = 1000;
+    /**********/
 
     public OrientationSensor(MainActivity display){
         this.display = display;
@@ -34,27 +36,22 @@ public class OrientationSensor implements SensorEventListener {
 
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            System.arraycopy(event.values, 0, mAccelerometerReading,
-                    0, mAccelerometerReading.length);
+            System.arraycopy(event.values, 0, mAccelerometerReading, 0, mAccelerometerReading.length);
         }
         else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
-            System.arraycopy(event.values, 0, mMagnetometerReading,
-                    0, mMagnetometerReading.length);
+            System.arraycopy(event.values, 0, mMagnetometerReading, 0, mMagnetometerReading.length);
         }
 
-        OrientationValue test = getOrientationAngles();
-        display.setXYZLabels(
-                Float.toString(test.azimuth * 180 / (float) Math.PI),
-                Float.toString(test.pitch * 180 / (float) Math.PI),
-                Float.toString(test.roll * 180 / (float) Math.PI)
-        );
+        OrientationValue orientationValue = getOrientationAngles();
+
+        display.setCompassXLabel(Float.toString(orientationValue.getAzimuth() * 180 / (float) Math.PI));
+        display.setCompassYLabel(Float.toString(orientationValue.getPitch() * 180 / (float) Math.PI));
+        display.setCompassZLabel(Float.toString(orientationValue.getRoll() * 180 / (float) Math.PI));
     }
 
 
     public OrientationValue getOrientationAngles() {
-        mSensorManager.getRotationMatrix(
-            mRotationMatrix, null, mAccelerometerReading, mMagnetometerReading
-        );
+        mSensorManager.getRotationMatrix(mRotationMatrix, null, mAccelerometerReading, mMagnetometerReading);
         mSensorManager.getOrientation(mRotationMatrix, mOrientationAngles);
         return new OrientationValue(mOrientationAngles);
     }
