@@ -116,10 +116,10 @@ public class AccelerometerSensor implements SensorEventListener {
     /**
      * Fonction qui remet à 0 le compteur de pas
      */
-    public void resetStepCounter() {
+    /*public void resetStepCounter() {
         this.stepCounter = 0;
         display.setStepCounterLabel();
-    }
+    }*/
 
     /**
      * méthode appelée lorsqu'une nouvelle valeur de l'accélerometre est recue
@@ -135,9 +135,10 @@ public class AccelerometerSensor implements SensorEventListener {
 
             Log.w("Norm :",Double.toString(accelerometerValueNorm));
 
-            display.setAccelerometerXLabel(Float.toString(accelerometerValue.getXvalue()));
-            display.setAccelerometerYLabel(Float.toString(accelerometerValue.getYvalue()));
-            display.setAccelerometerZLabel(Float.toString(accelerometerValue.getZvalue()));
+
+            //display.setAccelerometerXLabel(Float.toString(accelerometerValue.getXvalue()));
+            //display.setAccelerometerYLabel(Float.toString(accelerometerValue.getYvalue()));
+            //display.setAccelerometerZLabel(Float.toString(accelerometerValue.getZvalue()));
 
             //Récupération des valeurs pour les exporter sur scilab/matlab
             if (this.acquisitionStarted == true) {
@@ -166,8 +167,10 @@ public class AccelerometerSensor implements SensorEventListener {
                 Log.w("Min",Double.toString(min_value));
                 Log.w("Max",Double.toString(max_value));
                 if (max_value - min_value >= HEIGHT_THRESHOLD) {
-                    setStepCounter(getStepCounter() + 1);
-                    display.setStepCounterLabel();
+                    //setStepCounter(getStepCounter() + 1);
+                    //display.setStepCounterLabel();
+
+                    //Trigger Action here when step is detected
                 }
                 resetAccelerometerValueNormFiltered();
             }

@@ -10,7 +10,6 @@ import android.content.Context;
 
 public class OrientationSensor implements SensorEventListener {
 
-    /***** Attributs *****/
     private float[] mAccelerometerReading = new float[3];
     private float[] mMagnetometerReading = new float[3];
     private float[] mRotationMatrix = new float[9];
@@ -21,7 +20,6 @@ public class OrientationSensor implements SensorEventListener {
     private SensorManager mSensorManager;
     private Sensor sensorAccelerometer, sensorMagneticField;
     private int SENSOR_DELAY = 1000;
-    /**********/
 
     public OrientationSensor(MainActivity display){
         this.display = display;
@@ -43,12 +41,7 @@ public class OrientationSensor implements SensorEventListener {
         }
 
         OrientationValue orientationValue = getOrientationAngles();
-
-        display.setCompassXLabel(Float.toString(orientationValue.getAzimuth() * 180 / (float) Math.PI));
-        display.setCompassYLabel(Float.toString(orientationValue.getPitch() * 180 / (float) Math.PI));
-        display.setCompassZLabel(Float.toString(orientationValue.getRoll() * 180 / (float) Math.PI));
     }
-
 
     public OrientationValue getOrientationAngles() {
         mSensorManager.getRotationMatrix(mRotationMatrix, null, mAccelerometerReading, mMagnetometerReading);
@@ -57,6 +50,4 @@ public class OrientationSensor implements SensorEventListener {
     }
 
     public void onAccuracyChanged(Sensor sensor, int accuracy) {}
-
-    // detroy : mSensorManager.unregisterListener(this);
 }
