@@ -131,9 +131,7 @@ public class AccelerometerSensor implements SensorEventListener {
             // Filtrage de la gravité
             accelerometerValue = gravityFilter(new AccelerometerValue(event.values[0], event.values[1], event.values[2]));
 
-            accelerometerValueNorm = accelerometerValue.getNorm();
-
-            Log.w("Norm :",Double.toString(accelerometerValueNorm));
+            //accelerometerValueNorm = accelerometerValue.getNorm();
 
             display.setAccelerometerXLabel(Float.toString(accelerometerValue.getXvalue()));
             display.setAccelerometerYLabel(Float.toString(accelerometerValue.getYvalue()));
@@ -141,39 +139,31 @@ public class AccelerometerSensor implements SensorEventListener {
 
             //Récupération des valeurs pour les exporter sur scilab/matlab
             if (this.acquisitionStarted == true) {
-                Log.w("", "here");
                 //On ajoute la valeur dans la liste
                 this.AccelerometerValue_l.add(accelerometerValue);
             }
 
             if (accelerometerValueNorm >= NORM_THRESHHOLD && recording_for_step_counter == false) {
-                Log.w("", "passed");
                 recording_for_step_counter = true;
-                this.AccelerometerValueNormFiltered_l.add(accelerometerValueNorm);
-            }
-
-            if(accelerometerValueNorm >= NORM_THRESHHOLD && recording_for_step_counter == true){
-                this.AccelerometerValueNormFiltered_l.add(accelerometerValueNorm);
             }
 
             if (accelerometerValueNorm < NORM_THRESHHOLD && recording_for_step_counter == true) {
-                Log.w("", "stopped");
-                Log.w("List",AccelerometerValueNormFiltered_l.toString());
                 recording_for_step_counter = false;
                 //traitement de la liste
                 max_value = Collections.max(getAccelerometerValueNormFiltered());
                 min_value = Collections.min(getAccelerometerValueNormFiltered());
-                Log.w("Min",Double.toString(min_value));
-                Log.w("Max",Double.toString(max_value));
                 if (max_value - min_value >= HEIGHT_THRESHOLD) {
                     setStepCounter(getStepCounter() + 1);
                     display.setStepCounterLabel();
                 }
                 resetAccelerometerValueNormFiltered();
             }
+
+            if(recording_for_step_counter == true){
+                this.AccelerometerValueNormFiltered_l.add(accelerometerValueNorm);
+            }
         }
     }
-
 
     /**
      * Fonction qui change l'état de la variable acquisitionStarted lorsque l'utilisateur appuie sur le bouton

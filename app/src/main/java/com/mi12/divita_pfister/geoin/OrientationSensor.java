@@ -20,7 +20,7 @@ public class OrientationSensor implements SensorEventListener {
 
     private SensorManager mSensorManager;
     private Sensor sensorAccelerometer, sensorMagneticField;
-    private int SENSOR_DELAY = 1000;
+    private int SENSOR_DELAY = 10000;
     /**********/
 
     public OrientationSensor(MainActivity display){
