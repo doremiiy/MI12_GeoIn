@@ -31,7 +31,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
 
         acquisition_button = (Button) findViewById(R.id.mbutton);
         acquisition_button.setOnClickListener(MainActivity.this);
-        gps = new GpsSensor(this);
+        //gps = new GpsSensor(this);
 
         // Testing maps Activity
         // TODO: check is GPS is ready, then start the map activity
