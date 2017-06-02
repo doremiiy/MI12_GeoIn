@@ -30,7 +30,7 @@ public class GpsSensor {
             public void onLocationChanged(Location location) {
                 lastPosition = new GpsValue(
                         new double[]{location.getLatitude(), location.getLongitude()},
-                        location.getAccuracy()
+                        location.getAccuracy(), location.getTime()
                 );
                 isReady = true;
                 display.setUserPosition(lastPosition);
@@ -49,7 +49,12 @@ public class GpsSensor {
         };
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            if (ActivityCompat.checkSelfPermission(display, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED && ActivityCompat.checkSelfPermission(display, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            if (ActivityCompat.checkSelfPermission(
+                    display, Manifest.permission.ACCESS_FINE_LOCATION) !=
+                    PackageManager.PERMISSION_GRANTED
+                    && ActivityCompat.checkSelfPermission(
+                            display, Manifest.permission.ACCESS_COARSE_LOCATION) !=
+                    PackageManager.PERMISSION_GRANTED) {
                 display.requestPermissions(new String[]{
                         Manifest.permission.ACCESS_FINE_LOCATION,
                         Manifest.permission.ACCESS_COARSE_LOCATION
@@ -61,6 +66,9 @@ public class GpsSensor {
     }
 
 
+    /**
+     * Configure GpsSensor to get new value Twice per seconde if the position has moved by 20cm.
+     */
     public void configure() {
         mlocationManager.requestLocationUpdates("gps", 500, 0.2f, mlocationListener);
     }

@@ -15,8 +15,7 @@ import java.util.List;
 
 public class AccelerometerSensor implements SensorEventListener {
 
-    /***** Attributs *****/
-    private MainActivity display;
+    private MapsActivity display;
 
     private SensorManager mSensorManager;
     private Sensor sensorAccelerometer;
@@ -42,24 +41,20 @@ public class AccelerometerSensor implements SensorEventListener {
     private double accelerometerValueNorm;
 
     private double min_value, max_value;
-    /**********/
 
     /**
-     * Constructeur
-     *
+     * Constructor
      * @param display
      */
-    public AccelerometerSensor(MainActivity display) {
+    public AccelerometerSensor(MapsActivity display) {
         this.display = display;
         this.stepCounter = 0;
 
         this.AccelerometerValue_l = new ArrayList<AccelerometerValue>();
-
         this.AccelerometerValueNormFiltered_l = new ArrayList<Double>();
 
         mSensorManager = (SensorManager) display.getSystemService(Context.SENSOR_SERVICE);
         sensorAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-
         mSensorManager.registerListener(this, sensorAccelerometer, SENSOR_DELAY);
     }
 
@@ -81,7 +76,6 @@ public class AccelerometerSensor implements SensorEventListener {
 
     /**
      * Retourne la liste des normes filtrées de l'accéléromètre
-     *
      * @return
      */
     public List<Double> getAccelerometerValueNormFiltered() {
@@ -97,7 +91,6 @@ public class AccelerometerSensor implements SensorEventListener {
 
     /**
      * Retourne le nombre de pas depuis la dernière remise à 0
-     *
      * @return
      */
     public int getStepCounter() {
@@ -106,7 +99,6 @@ public class AccelerometerSensor implements SensorEventListener {
 
     /**
      * Permet de setter la valeur du champ stepcounter
-     *
      * @param value
      */
     public void setStepCounter(int value) {

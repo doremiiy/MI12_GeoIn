@@ -17,8 +17,9 @@ import com.google.android.gms.maps.model.MarkerOptions;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
+    private Controller controller;
+
     private GoogleMap mMap;
-    private GpsSensor gps;
     private Marker markerPosition;
 
     @Override
@@ -29,21 +30,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
-        gps = new GpsSensor(this);
+        controller = new Controller(this);
     }
 
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
 
-        LatLng myLaLn = new LatLng(-34, 151);
+        LatLng entreePierreGuillaumat1 = new LatLng(49.400171, 2.7999994);
         MarkerOptions markerOptions = new MarkerOptions()
-                .position(myLaLn)
+                .position(entreePierreGuillaumat1)
                 .icon(BitmapDescriptorFactory.fromResource(R.drawable.walker))
                 .visible(false);
         markerPosition = mMap.addMarker(markerOptions);
 
-        CameraPosition camPos = new CameraPosition.Builder().target(myLaLn)
+        CameraPosition camPos = new CameraPosition.Builder().target(entreePierreGuillaumat1)
                 .zoom(20)
                 .bearing(0)
                 .tilt(0)
@@ -52,6 +53,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mMap.animateCamera(camUpd3);
     }
 
+    /**
+     * Print the user's position on the map.
+     * @param position
+     */
     public void setUserPosition (GpsValue position) {
         LatLng myLaLn = new LatLng(position.latitude, position.longitude);
 
@@ -67,5 +72,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         if(markerPosition.isVisible() == false) markerPosition.setVisible(true);
         markerPosition.setPosition(myLaLn);
+    }
+
+    /**
+     * @return the position of the user printed on the map.
+     */
+    public LatLng getCurrentPosition(){
+        return markerPosition.getPosition();
     }
 }

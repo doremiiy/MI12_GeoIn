@@ -15,13 +15,13 @@ public class OrientationSensor implements SensorEventListener {
     private float[] mRotationMatrix = new float[9];
     private float[] mOrientationAngles = new float[3];
 
-    private MainActivity display;
+    private MapsActivity display;
 
     private SensorManager mSensorManager;
     private Sensor sensorAccelerometer, sensorMagneticField;
     private int SENSOR_DELAY = 1000;
 
-    public OrientationSensor(MainActivity display){
+    public OrientationSensor(MapsActivity display){
         this.display = display;
 
         mSensorManager = (SensorManager) display.getSystemService(Context.SENSOR_SERVICE);
@@ -34,17 +34,21 @@ public class OrientationSensor implements SensorEventListener {
 
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            System.arraycopy(event.values, 0, mAccelerometerReading, 0, mAccelerometerReading.length);
+            System.arraycopy(
+                    event.values, 0, mAccelerometerReading, 0, mAccelerometerReading.length
+            );
         }
         else if (event.sensor.getType() == Sensor.TYPE_MAGNETIC_FIELD) {
-            System.arraycopy(event.values, 0, mMagnetometerReading, 0, mMagnetometerReading.length);
+            System.arraycopy(
+                    event.values, 0, mMagnetometerReading, 0, mMagnetometerReading.length
+            );
         }
-
-        OrientationValue orientationValue = getOrientationAngles();
     }
 
     public OrientationValue getOrientationAngles() {
-        mSensorManager.getRotationMatrix(mRotationMatrix, null, mAccelerometerReading, mMagnetometerReading);
+        mSensorManager.getRotationMatrix(
+                mRotationMatrix, null, mAccelerometerReading, mMagnetometerReading
+        );
         mSensorManager.getOrientation(mRotationMatrix, mOrientationAngles);
         return new OrientationValue(mOrientationAngles);
     }
