@@ -30,10 +30,7 @@ public class MainActivity extends Activity implements View.OnClickListener {
     private TextView compassZ;
     private TextView step_counter;
     private Button step_counter_reset_button;
-    private Button acquisition_button;
     /**********/
-
-    private boolean acquisition_button_started = false;
 
     private OrientationSensor Orientation;
     private AccelerometerSensor Accelerometer;
@@ -66,9 +63,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
         step_counter_reset_button = (Button) findViewById(R.id.step_counter_reset_button);
         step_counter_reset_button.setOnClickListener(MainActivity.this);
 
-        acquisition_button = (Button) findViewById(R.id.acquisition_button);
-        acquisition_button.setOnClickListener(MainActivity.this);
-
         Orientation = new OrientationSensor(this);
         Accelerometer = new AccelerometerSensor(this);
     }
@@ -79,33 +73,6 @@ public class MainActivity extends Activity implements View.OnClickListener {
      * @param view
      */
     public void onClick(View view) {
-        if (view.equals(acquisition_button)) {
-            if (acquisition_button_started == false) {
-                Accelerometer.switchAcquisitionState();
-                Accelerometer.resetAccelerometerValueList();
-                acquisition_button_started = true;
-                acquisition_button.setText("Arrêter l'acquisition");
-            } else {
-                acquisition_button_started = false;
-                AccelerometerValue_l = new ArrayList<AccelerometerValue>();
-                AccelerometerValue_l = Accelerometer.getAccelerometerValueList();
-                AccelerometerValue_a = AccelerometerValue_l.toArray(new AccelerometerValue[AccelerometerValue_l.size()]);
-                acquisition_button.setText("Commencer l'acquisition");
-
-                File path = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS);
-                File file = new File(path, "accelerometer_data_flow.txt");
-                try {
-                    path.mkdirs();
-                    OutputStream os = new FileOutputStream(file);
-                    for (int i = 0; i < AccelerometerValue_a.length; i++) {
-                        os.write((AccelerometerValue_a[i].getFormattedString() + "\n").getBytes());
-                    }
-                    os.close();
-                } catch (IOException e) {
-                    Log.w("External Storage", "Error writing" + file, e);
-                }
-            }
-        }
         if(view.equals(step_counter_reset_button)){
             Accelerometer.resetStepCounter();
         }
@@ -168,10 +135,4 @@ public class MainActivity extends Activity implements View.OnClickListener {
     public void setStepCounterLabel(){
         step_counter.setText(Integer.toString(Accelerometer.getStepCounter()));
     }
-
-    /*public void displaySetStep() {
-        int number = Integer.parseInt(step_number.getText().toString());
-        number += 1;
-        step_number.setText(Integer.toString(number));
-    }*/
 }
