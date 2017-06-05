@@ -43,10 +43,6 @@ public class OrientationSensor implements SensorEventListener {
         }
 
         OrientationValue orientationValue = getOrientationAngles();
-
-        display.setCompassXLabel(Float.toString(orientationValue.getAzimuth() * 180 / (float) Math.PI));
-        display.setCompassYLabel(Float.toString(orientationValue.getPitch() * 180 / (float) Math.PI));
-        display.setCompassZLabel(Float.toString(orientationValue.getRoll() * 180 / (float) Math.PI));
     }
 
 

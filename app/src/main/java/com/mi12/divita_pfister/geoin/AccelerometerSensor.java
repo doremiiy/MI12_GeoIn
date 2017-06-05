@@ -15,21 +15,16 @@ import java.util.List;
 
 public class AccelerometerSensor implements SensorEventListener {
 
-
     private MainActivity display;
 
     private SensorManager mSensorManager;
     private Sensor sensorAccelerometer;
-    private int SENSOR_DELAY = 100000;
-
-    private AccelerometerValue accelerometerValue = null;
-    private AccelerometerValue gravity = new AccelerometerValue(0, 0, 0);
 
     private int ACCELEROMETER_RECORD_SIZE = 10;
-    private static final float ALPHA = 0.25f;
     private float VELOCITY_THRESHOLD = 4f;
     private int TIMESTAMP_THRESHOLD = 250000000;
     private int ACCELERATION_SIZE = 50;
+    private int SENSOR_DELAY = 10000;
 
     private float[] accelerometerRecord_a = new float[ACCELEROMETER_RECORD_SIZE];
     private int accelerometerCounter = 0;
@@ -40,6 +35,8 @@ public class AccelerometerSensor implements SensorEventListener {
     private float[] accelerationX = new float[ACCELERATION_SIZE];
     private float[] accelerationY = new float[ACCELERATION_SIZE];
     private float[] accelerationZ = new float[ACCELERATION_SIZE];
+
+    private VectorMath VecMath = new VectorMath();
 
     /**
      * Constructeur
@@ -65,13 +62,6 @@ public class AccelerometerSensor implements SensorEventListener {
     }
 
     /**
-     * Permet de setter la valeur du champ stepcounter
-     */
-    public void setStepCounter(int value) {
-        this.stepCounter = value;
-    }
-
-    /**
      * Fonction qui remet à 0 le compteur de pas
      */
     public void resetStepCounter() {
@@ -91,75 +81,60 @@ public class AccelerometerSensor implements SensorEventListener {
         }
     }
 
+    /**
+     * Traitement réalisé sur les nouvelles valeurs d'accélération recues : estimation de la composante Z, filtrage de la gravité et déctection du pas
+     * @param timestamp
+     * @param accelerometerValue
+     */
     private void registerNewAccelerometerValue(long timestamp, AccelerometerValue accelerometerValue) {
+        //Récupération dans un tableau des valeurs de l'accéléromètre
+        float[] accelerometerValue_a = new float[3];
+        accelerometerValue_a[0] = accelerometerValue.getXvalue();
+        accelerometerValue_a[1] = accelerometerValue.getYvalue();
+        accelerometerValue_a[2] = accelerometerValue.getZvalue();
+
+        //Détermination de l'orientation du vecteur Z
         OrientationZVectorCounter++;
-        accelerationX[OrientationZVectorCounter % ACCELERATION_SIZE] = accelerometerValue.getXvalue();
-        accelerationY[OrientationZVectorCounter % ACCELERATION_SIZE] = accelerometerValue.getYvalue();
-        accelerationZ[OrientationZVectorCounter % ACCELERATION_SIZE] = accelerometerValue.getZvalue();
+        accelerationX[OrientationZVectorCounter % ACCELERATION_SIZE] = accelerometerValue_a[0];
+        accelerationY[OrientationZVectorCounter % ACCELERATION_SIZE] = accelerometerValue_a[1];
+        accelerationZ[OrientationZVectorCounter % ACCELERATION_SIZE] = accelerometerValue_a[2];
 
         float[] orientationZ = new float[3];
-        orientationZ[0] = vectorSum(accelerationX) / Math.min(OrientationZVectorCounter, ACCELERATION_SIZE);
-        orientationZ[1] = vectorSum(accelerationY) / Math.min(OrientationZVectorCounter, ACCELERATION_SIZE);
-        orientationZ[2] = vectorSum(accelerationZ) / Math.min(OrientationZVectorCounter, ACCELERATION_SIZE);
+        orientationZ[0] = VecMath.vectorSum(accelerationX) / Math.min(OrientationZVectorCounter, ACCELERATION_SIZE);
+        orientationZ[1] = VecMath.vectorSum(accelerationY) / Math.min(OrientationZVectorCounter, ACCELERATION_SIZE);
+        orientationZ[2] = VecMath.vectorSum(accelerationZ) / Math.min(OrientationZVectorCounter, ACCELERATION_SIZE);
 
-        float normZ = normalizeVector(orientationZ);
+        float normZ = VecMath.normalizeVector(orientationZ);
 
         orientationZ[0] = orientationZ[0] / normZ;
         orientationZ[1] = orientationZ[1] / normZ;
         orientationZ[2] = orientationZ[2] / normZ;
 
-        float realZ = (orientationZ[0] * accelerometerValue.getXvalue() + orientationZ[1] * accelerometerValue.getYvalue() + orientationZ[2] * accelerometerValue.getZvalue()) - normZ;
-
+        //suppression de la gravité sur la composante de l'accélération portée par Z
+        float realZ = VecMath.dotMult(orientationZ, accelerometerValue_a) - normZ;
         accelerometerCounter++;
         accelerometerRecord_a[accelerometerCounter % ACCELEROMETER_RECORD_SIZE] = realZ;
 
-        float velocity = vectorSum(accelerometerRecord_a);
+        float velocity = VecMath.vectorSum(accelerometerRecord_a);
 
+        /*
+        Détermination du pas : si l'accélération calculée sur les ACCELEROMETER_RECORD_SIZE derniers records est suffisamment grande, et que l'accélération au temps t-1 est suffisamment petite, et que le temps est sufisamment grand, on considère qu'un pas est fait
+         */
         if(velocity > VELOCITY_THRESHOLD && oldVelocity <= VELOCITY_THRESHOLD && timestamp - lastTimestamp > TIMESTAMP_THRESHOLD){
-            stepCounter++;
-            display.setStepCounterLabel();
+            stepDetected(timestamp);
             lastTimestamp = timestamp;
         }
 
         oldVelocity = velocity;
     }
 
-    public float normalizeVector(float[] vector){
-        float result = 0;
-        for(int i=0; i<vector.length; i++){
-            result += vector[i] * vector[i];
-        }
-        return (float) Math.sqrt(result);
-    }
-
-    private float vectorSum(float[] vector) {
-        float result = 0;
-        for (int i = 0; i < vector.length; i++) {
-            result += vector[i];
-        }
-        return result;
-    }
-
     /**
-     * Fonction qui filtre la gravité sur les valeurs de l'accéléromètre
-     *
-     * @param AccelerometerValue input
-     * @return AccelerometerValue
+     * Fonction appelée lorsqu'un pas est detecté. On récupère également le timestamp pour traitemements postérieurs
+     * @param timestamp
      */
-    private AccelerometerValue gravityFilter(AccelerometerValue input) {
-        //Isolation de la gravité avec un filtre passe-bas
-        gravity.setValues(
-                ALPHA * gravity.getXvalue() + (1 - ALPHA) * input.getXvalue(),
-                ALPHA * gravity.getYvalue() + (1 - ALPHA) * input.getYvalue(),
-                ALPHA * gravity.getZvalue() + (1 - ALPHA) * input.getZvalue()
-        );
-
-        //On enlève ensuite la gravité aux mesures et on retourne les valeurs filtrées
-        return new AccelerometerValue(
-                input.getXvalue() - gravity.getXvalue(),
-                input.getYvalue() - gravity.getYvalue(),
-                input.getZvalue() - gravity.getZvalue()
-        );
+    public void stepDetected(long timestamp){
+        stepCounter++;
+        display.setStepCounterLabel();
     }
 
     public void onAccuracyChanged(Sensor sensor, int accuracy) {
