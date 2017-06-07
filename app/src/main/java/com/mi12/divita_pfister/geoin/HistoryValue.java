@@ -2,13 +2,13 @@ package com.mi12.divita_pfister.geoin;
 
 
 public class HistoryValue {
-    public OrientationValue orientation;
-    public GpsValue lastGpsPosition;
-    public long stepTimestamps;
+    public StepPosition stepPosition;
+    public GpsValue gpsPosition;
+    public boolean isIndoorMode;
 
-    public HistoryValue (OrientationValue orientation, GpsValue gpsValue, long stepTimestamps){
-        this.orientation = orientation;
-        this.lastGpsPosition = gpsValue;
-        this.stepTimestamps = stepTimestamps;
+    public HistoryValue (StepPosition stepPosition, GpsValue gpsPosition, boolean isIndoorMode){
+        this.stepPosition = stepPosition;
+        this.gpsPosition = gpsPosition;
+        this.isIndoorMode = isIndoorMode;
     }
 }

@@ -12,7 +12,11 @@ public class Controller {
     private AccelerometerSensor accelerometer;
     private OrientationSensor orientation;
 
-    public HistoryValue[] history = new HistoryValue[1000];
+    public float STEP_DISTANCE = 0.75f;
+
+    public int MAX_HISTORY = 100;
+    private int historyPointer =0;
+    private HistoryValue[] history = new HistoryValue[MAX_HISTORY];
     private int stepCounter = 0;
 
     /**
@@ -26,30 +30,9 @@ public class Controller {
         this.orientation = new OrientationSensor(this.display);
     }
 
-    /**
-     * @param distance
-     * @param bearing
-     * @return new position of the user in coordinate
-     */
-    public LatLng addStepDistance(float distance, float bearing) {
-        LatLng oldPosition = display.getCurrentPosition();
-        double lat1 = Math.toRadians(oldPosition.latitude);
-        double lon1 = Math.toRadians(oldPosition.longitude);
-        double earthRadius = 6371;
-        double angularDistance = distance/earthRadius;
-        double bearingRad = Math.toRadians(bearing);
-
-        double lat2 = Math.asin(
-                Math.sin(lat1) * Math.cos(angularDistance) +
-                Math.cos(lat1) * Math.sin(angularDistance) * Math.cos(bearingRad)
-        );
-        double lon2 = lon1 + Math.atan2(
-                Math.sin(bearingRad) * Math.sin(angularDistance)*Math.cos(lat1),
-                Math.cos(angularDistance)-Math.sin(lat1)*Math.sin(lat2)
-        );
-       return new LatLng(Math.toDegrees(lat2), Math.toDegrees(lon2));
+    private boolean isIndoorMode() {
+        return false;
     }
-
 
     /**
      * Action when we detect a step
@@ -62,7 +45,29 @@ public class Controller {
         if(gps.isReady()) {
             GpsValue gpsValue = gps.getLastPosition();
             display.setUserPosition(gpsValue);
-            display.setLabel2(gpsValue.accuracy);
+            display.setLabel2(gpsValue.getAccuracy());
+
+            StepPosition temp;
+            if (history[(historyPointer - 1) % MAX_HISTORY] == null){
+                temp = new StepPosition(
+                        new double[]{gpsValue.getLatitude(), gpsValue.getLongitude()},
+                        gpsValue.getDatetime()
+                );
+            } else {
+                // TODO: Check if roll and pitch are good enough
+                temp = Position.addStepDistance(
+                        history[(historyPointer - 1) % MAX_HISTORY].stepPosition,
+                        STEP_DISTANCE,
+                        orientation.getOrientationAngles().getAzimuth(),
+                        timestamp
+                );
+            }
+            history[historyPointer % MAX_HISTORY] = new HistoryValue(
+                    temp,
+                    gpsValue,
+                    isIndoorMode()
+            );
+            historyPointer++;
         }
     }
 
