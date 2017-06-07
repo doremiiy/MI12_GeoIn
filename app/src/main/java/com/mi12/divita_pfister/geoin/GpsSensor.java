@@ -13,27 +13,29 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 
-//TODO: add timestamps info and return a lastvalue only if it's not too old
+
 public class GpsSensor {
 
-    private MapsActivity display;
+    private Controller controller;
     private LocationListener mlocationListener;
     private LocationManager mlocationManager;
 
     private GpsValue lastPosition;
     private boolean isReady;
 
-    public GpsSensor(final MapsActivity display) {
-        this.display = display;
-        mlocationManager = (LocationManager) display.getSystemService(Context.LOCATION_SERVICE);
+    public GpsSensor (final Controller controller) {
+        this.controller = controller;
+        mlocationManager = (LocationManager) controller.display.getSystemService(Context.LOCATION_SERVICE);
         mlocationListener = new LocationListener() {
             public void onLocationChanged(Location location) {
                 lastPosition = new GpsValue(
                         new double[]{location.getLatitude(), location.getLongitude()},
                         location.getAccuracy(), location.getTime()
                 );
-                isReady = true;
-                display.setUserPosition(lastPosition);
+                if (!isReady) {
+                    controller.gpsIsready();
+                    isReady = true;
+                }
             }
 
             public void onStatusChanged(String provider, int status, Bundle extras) {}
@@ -44,18 +46,18 @@ public class GpsSensor {
                 isReady = false;
                 //go to setting panel if GPS is not active
                 Intent intent = new Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS);
-                display.startActivity(intent);
+                controller.display.startActivity(intent);
             }
         };
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             if (ActivityCompat.checkSelfPermission(
-                    display, Manifest.permission.ACCESS_FINE_LOCATION) !=
+                    controller.display, Manifest.permission.ACCESS_FINE_LOCATION) !=
                     PackageManager.PERMISSION_GRANTED
                     && ActivityCompat.checkSelfPermission(
-                            display, Manifest.permission.ACCESS_COARSE_LOCATION) !=
+                            controller.display, Manifest.permission.ACCESS_COARSE_LOCATION) !=
                     PackageManager.PERMISSION_GRANTED) {
-                display.requestPermissions(new String[]{
+                controller.display.requestPermissions(new String[]{
                         Manifest.permission.ACCESS_FINE_LOCATION,
                         Manifest.permission.ACCESS_COARSE_LOCATION
                 }, 10);
@@ -69,8 +71,8 @@ public class GpsSensor {
     /**
      * Configure GpsSensor to get new value Twice per seconde if the position has moved by 20cm.
      */
-    public void configure() {
-        mlocationManager.requestLocationUpdates("gps", 500, 0.2f, mlocationListener);
+    public void configure () {
+        mlocationManager.requestLocationUpdates("gps", 500, 0, mlocationListener);
     }
 
     /**
@@ -86,7 +88,7 @@ public class GpsSensor {
      * return.
      * @return boolean
      */
-    public boolean isReady(){
+    public boolean isReady (){
         return this.isReady;
     }
 }

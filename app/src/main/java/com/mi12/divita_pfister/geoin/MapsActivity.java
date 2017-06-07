@@ -2,6 +2,7 @@ package com.mi12.divita_pfister.geoin;
 
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -22,6 +23,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private Marker markerPosition;
 
+    private TextView stepCounter, gpsAccuracy, gpsReady;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -31,6 +34,10 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
         controller = new Controller(this);
+
+        stepCounter = (TextView)findViewById(R.id.step_counter);
+        gpsAccuracy = (TextView)findViewById(R.id.gps_accuracy);
+        gpsReady = (TextView)findViewById(R.id.gps_ready);
     }
 
     @Override
@@ -54,6 +61,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
     /**
+     * @return the position of the user printed on the map.
+     */
+    public LatLng getCurrentPosition(){
+        return markerPosition.getPosition();
+    }
+
+    /**
      * Print the user's position on the map.
      * @param position
      */
@@ -74,10 +88,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         markerPosition.setPosition(myLaLn);
     }
 
-    /**
-     * @return the position of the user printed on the map.
-     */
-    public LatLng getCurrentPosition(){
-        return markerPosition.getPosition();
+    public void setLabel1(int step_counter) {
+        stepCounter.setText(Integer.toString(step_counter));
     }
+    public void setLabel2(float gps_accuracy) {
+        gpsAccuracy.setText(Float.toString(gps_accuracy));
+    }
+    public void setLabel3(boolean gpsIs_ready) {
+        gpsReady.setText(Boolean.toString(gpsIs_ready));
+    }
+
 }

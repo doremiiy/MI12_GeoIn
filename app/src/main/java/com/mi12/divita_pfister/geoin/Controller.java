@@ -3,13 +3,17 @@ package com.mi12.divita_pfister.geoin;
 
 import com.google.android.gms.maps.model.LatLng;
 
+/**
+ *
+ */
 public class Controller {
-    private MapsActivity display;
+    public MapsActivity display;
     private GpsSensor gps;
     private AccelerometerSensor accelerometer;
     private OrientationSensor orientation;
 
     public HistoryValue[] history = new HistoryValue[1000];
+    private int stepCounter = 0;
 
     /**
      * Constructor
@@ -17,8 +21,8 @@ public class Controller {
      */
     public Controller(MapsActivity display){
         this.display = display;
-        this.gps = new GpsSensor(this.display);
-        this.accelerometer = new AccelerometerSensor(this.display);
+        this.gps = new GpsSensor(this);
+        this.accelerometer = new AccelerometerSensor(this);
         this.orientation = new OrientationSensor(this.display);
     }
 
@@ -49,8 +53,30 @@ public class Controller {
 
     /**
      * Action when we detect a step
+     * @param timestamp
      */
-    public void onStepDetected(){
+    public void onStepDetected(long timestamp){
+        stepCounter++;
+        display.setLabel1(stepCounter);
 
+        GpsValue gpsValue = gps.getLastPosition();
+        display.setUserPosition(gpsValue);
+        display.setLabel2(gpsValue.accuracy);
     }
+
+    public void gpsIsready(){
+        display.setLabel3(true);
+    }
+
+    /**
+     * Retourne le nombre de pas depuis la dernière remise à 0
+     * @return int
+     */
+    public int getStepCounter() {
+        return this.stepCounter;
+    }
+
+    /**
+     * Fonction appelée lorsqu'un pas est detecté. On récupère également le timestamp pour traitemements postérieurs
+     */
 }
