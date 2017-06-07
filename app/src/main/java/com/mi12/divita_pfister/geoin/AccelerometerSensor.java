@@ -19,187 +19,114 @@ public class AccelerometerSensor implements SensorEventListener {
 
     private SensorManager mSensorManager;
     private Sensor sensorAccelerometer;
-    private int SENSOR_DELAY = 100000;
 
-    private AccelerometerValue accelerometerValue = null;
-    private AccelerometerValue gravity = new AccelerometerValue(0, 0, 0);
+    private int ACCELEROMETER_RECORD_SIZE = 10;
+    private float VELOCITY_THRESHOLD = 4f;
+    private int TIMESTAMP_THRESHOLD = 250000000;
+    private int ACCELERATION_SIZE = 50;
+    private int SENSOR_DELAY = 10000;
 
-    static final float ALPHA = 0.25f;
+    private float[] accelerometerRecord_a = new float[ACCELEROMETER_RECORD_SIZE];
+    private int accelerometerCounter = 0;
+    private long lastTimestamp = 0;
+    private float oldVelocity = 0;
+    private int stepCounter = 0;
+    private int OrientationZVectorCounter = 0;
+    private float[] accelerationX = new float[ACCELERATION_SIZE];
+    private float[] accelerationY = new float[ACCELERATION_SIZE];
+    private float[] accelerationZ = new float[ACCELERATION_SIZE];
 
-    private List<AccelerometerValue> AccelerometerValue_l;
-
-    private boolean acquisitionStarted = false;
-
-    private int stepCounter;
-
-    private boolean recording_for_step_counter = false;
-    private List<Double> AccelerometerValueNormFiltered_l;
-
-    private double NORM_THRESHHOLD = 0.2;
-    private double HEIGHT_THRESHOLD = 0.2;
-
-    private double accelerometerValueNorm;
-
-    private double min_value, max_value;
+    private VectorMath VecMath = new VectorMath();
 
     /**
-     * Constructor
-     * @param display
+     * Constructeur
+     * @param MapsActivity display
      */
     public AccelerometerSensor(MapsActivity display) {
         this.display = display;
-        this.stepCounter = 0;
-
-        this.AccelerometerValue_l = new ArrayList<AccelerometerValue>();
-        this.AccelerometerValueNormFiltered_l = new ArrayList<Double>();
 
         mSensorManager = (SensorManager) display.getSystemService(Context.SENSOR_SERVICE);
         sensorAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        mSensorManager.registerListener(this, sensorAccelerometer, SENSOR_DELAY);
-    }
 
-    /**
-     * Retourne la liste des valeurs de l'accéléromètre conservées
-     *
-     * @return
-     */
-    public List<AccelerometerValue> getAccelerometerValueList() {
-        return this.AccelerometerValue_l;
-    }
-
-    /**
-     * Remet à 0 la liste des valeurs d'accéléromètre conservées
-     */
-    public void resetAccelerometerValueList() {
-        this.AccelerometerValue_l = new ArrayList<AccelerometerValue>();
-    }
-
-    /**
-     * Retourne la liste des normes filtrées de l'accéléromètre
-     * @return
-     */
-    public List<Double> getAccelerometerValueNormFiltered() {
-        return this.AccelerometerValueNormFiltered_l;
-    }
-
-    /**
-     * Remet à 0 la liste des normes filtrées de l'accéléromètre
-     */
-    public void resetAccelerometerValueNormFiltered() {
-        this.AccelerometerValueNormFiltered_l = new ArrayList<Double>();
+        mSensorManager.registerListener(this, sensorAccelerometer, SensorManager.SENSOR_DELAY_FASTEST);
     }
 
     /**
      * Retourne le nombre de pas depuis la dernière remise à 0
-     * @return
+     * @return int
      */
     public int getStepCounter() {
         return this.stepCounter;
     }
 
     /**
-     * Permet de setter la valeur du champ stepcounter
-     * @param value
-     */
-    public void setStepCounter(int value) {
-        this.stepCounter = value;
-    }
-
-    /**
-     * Fonction qui remet à 0 le compteur de pas
-     */
-    /*public void resetStepCounter() {
-        this.stepCounter = 0;
-        display.setStepCounterLabel();
-    }*/
-
-    /**
      * méthode appelée lorsqu'une nouvelle valeur de l'accélerometre est recue
-     *
-     * @param event
+     * @param SensorEvent event
      */
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
-            // Filtrage de la gravité
-            accelerometerValue = gravityFilter(new AccelerometerValue(event.values[0], event.values[1], event.values[2]));
-
-            accelerometerValueNorm = accelerometerValue.getNorm();
-
-            Log.w("Norm :",Double.toString(accelerometerValueNorm));
-
-
-            //display.setAccelerometerXLabel(Float.toString(accelerometerValue.getXvalue()));
-            //display.setAccelerometerYLabel(Float.toString(accelerometerValue.getYvalue()));
-            //display.setAccelerometerZLabel(Float.toString(accelerometerValue.getZvalue()));
-
-            //Récupération des valeurs pour les exporter sur scilab/matlab
-            if (this.acquisitionStarted == true) {
-                Log.w("", "here");
-                //On ajoute la valeur dans la liste
-                this.AccelerometerValue_l.add(accelerometerValue);
-            }
-
-            if (accelerometerValueNorm >= NORM_THRESHHOLD && recording_for_step_counter == false) {
-                Log.w("", "passed");
-                recording_for_step_counter = true;
-                this.AccelerometerValueNormFiltered_l.add(accelerometerValueNorm);
-            }
-
-            if(accelerometerValueNorm >= NORM_THRESHHOLD && recording_for_step_counter == true){
-                this.AccelerometerValueNormFiltered_l.add(accelerometerValueNorm);
-            }
-
-            if (accelerometerValueNorm < NORM_THRESHHOLD && recording_for_step_counter == true) {
-                Log.w("", "stopped");
-                Log.w("List",AccelerometerValueNormFiltered_l.toString());
-                recording_for_step_counter = false;
-                //traitement de la liste
-                max_value = Collections.max(getAccelerometerValueNormFiltered());
-                min_value = Collections.min(getAccelerometerValueNormFiltered());
-                Log.w("Min",Double.toString(min_value));
-                Log.w("Max",Double.toString(max_value));
-                if (max_value - min_value >= HEIGHT_THRESHOLD) {
-                    //setStepCounter(getStepCounter() + 1);
-                    //display.setStepCounterLabel();
-
-                    //Trigger Action here when step is detected
-                }
-                resetAccelerometerValueNormFiltered();
-            }
+            AccelerometerValue accelerometerValue = new AccelerometerValue(event.values[0], event.values[1], event.values[2]);
+            registerNewAccelerometerValue(event.timestamp, accelerometerValue);
         }
     }
 
+    /**
+     * Traitement réalisé sur les nouvelles valeurs d'accélération recues : estimation de la composante Z, filtrage de la gravité et déctection du pas
+     * @param timestamp
+     * @param accelerometerValue
+     */
+    private void registerNewAccelerometerValue(long timestamp, AccelerometerValue accelerometerValue) {
+        // Récupération dans un tableau des valeurs de l'accéléromètre
+        float[] accelerometerValue_a = new float[3];
+        accelerometerValue_a[0] = accelerometerValue.getXvalue();
+        accelerometerValue_a[1] = accelerometerValue.getYvalue();
+        accelerometerValue_a[2] = accelerometerValue.getZvalue();
+
+        // Détermination de l'orientation du vecteur Z
+        OrientationZVectorCounter++;
+        accelerationX[OrientationZVectorCounter % ACCELERATION_SIZE] = accelerometerValue_a[0];
+        accelerationY[OrientationZVectorCounter % ACCELERATION_SIZE] = accelerometerValue_a[1];
+        accelerationZ[OrientationZVectorCounter % ACCELERATION_SIZE] = accelerometerValue_a[2];
+
+        float[] orientationZ = new float[3];
+        orientationZ[0] = VecMath.vectorSum(accelerationX) / Math.min(OrientationZVectorCounter, ACCELERATION_SIZE);
+        orientationZ[1] = VecMath.vectorSum(accelerationY) / Math.min(OrientationZVectorCounter, ACCELERATION_SIZE);
+        orientationZ[2] = VecMath.vectorSum(accelerationZ) / Math.min(OrientationZVectorCounter, ACCELERATION_SIZE);
+
+        float normZ = VecMath.normalizeVector(orientationZ);
+
+        orientationZ[0] = orientationZ[0] / normZ;
+        orientationZ[1] = orientationZ[1] / normZ;
+        orientationZ[2] = orientationZ[2] / normZ;
+
+        // Suppression de la gravité sur la composante de l'accélération portée par Z
+        float realZ = VecMath.dotMult(orientationZ, accelerometerValue_a) - normZ;
+        accelerometerCounter++;
+        accelerometerRecord_a[accelerometerCounter % ACCELEROMETER_RECORD_SIZE] = realZ;
+
+        float velocity = VecMath.vectorSum(accelerometerRecord_a);
+
+        /* Détermination du pas : si l'accélération calculée sur les ACCELEROMETER_RECORD_SIZE
+        derniers records est suffisamment grande, et que l'accélération au temps t-1 est
+        suffisamment petite, et que le temps est sufisamment grand, on considère qu'un pas est fait
+        */
+        if(velocity > VELOCITY_THRESHOLD && oldVelocity <= VELOCITY_THRESHOLD && timestamp - lastTimestamp > TIMESTAMP_THRESHOLD){
+            stepDetected(timestamp);
+            lastTimestamp = timestamp;
+        }
+
+        oldVelocity = velocity;
+    }
 
     /**
-     * Fonction qui change l'état de la variable acquisitionStarted lorsque l'utilisateur appuie sur le bouton
+     * Fonction appelée lorsqu'un pas est detecté. On récupère également le timestamp pour traitemements postérieurs
+     * @param timestamp
      */
-    public void switchAcquisitionState() {
-        this.acquisitionStarted = !this.acquisitionStarted;
+    public void stepDetected(long timestamp){
+        stepCounter++;
+        // display.setStepCounterLabel();
     }
 
-    /**
-     * Fonction qui filtre la gravité sur les valeurs de l'accéléromètre
-     *
-     * @param input
-     * @return
-     */
-    protected AccelerometerValue gravityFilter(AccelerometerValue input) {
-        //Isolation de la gravité avec un filtre passe-bas
-        gravity.setValues(
-                ALPHA * gravity.getXvalue() + (1 - ALPHA) * input.getXvalue(),
-                ALPHA * gravity.getYvalue() + (1 - ALPHA) * input.getYvalue(),
-                ALPHA * gravity.getZvalue() + (1 - ALPHA) * input.getZvalue()
-        );
-
-        //On enlève ensuite la gravité aux mesures et on retourne les valeurs filtrées
-        return new AccelerometerValue(
-                input.getXvalue() - gravity.getXvalue(),
-                input.getYvalue() - gravity.getYvalue(),
-                input.getZvalue() - gravity.getZvalue()
-        );
-    }
-
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-    }
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 
 }
