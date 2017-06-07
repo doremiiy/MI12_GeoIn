@@ -15,7 +15,7 @@ import java.util.List;
 
 public class AccelerometerSensor implements SensorEventListener {
 
-    private MainActivity display;
+    private MapsActivity display;
 
     private SensorManager mSensorManager;
     private Sensor sensorAccelerometer;
@@ -40,10 +40,9 @@ public class AccelerometerSensor implements SensorEventListener {
 
     /**
      * Constructeur
-     *
-     * @param MainActivity display
+     * @param MapsActivity display
      */
-    public AccelerometerSensor(MainActivity display) {
+    public AccelerometerSensor(MapsActivity display) {
         this.display = display;
 
         mSensorManager = (SensorManager) display.getSystemService(Context.SENSOR_SERVICE);
@@ -54,7 +53,6 @@ public class AccelerometerSensor implements SensorEventListener {
 
     /**
      * Retourne le nombre de pas depuis la dernière remise à 0
-     *
      * @return int
      */
     public int getStepCounter() {
@@ -62,16 +60,7 @@ public class AccelerometerSensor implements SensorEventListener {
     }
 
     /**
-     * Fonction qui remet à 0 le compteur de pas
-     */
-    public void resetStepCounter() {
-        this.stepCounter = 0;
-        display.setStepCounterLabel();
-    }
-
-    /**
      * méthode appelée lorsqu'une nouvelle valeur de l'accélerometre est recue
-     *
      * @param SensorEvent event
      */
     public void onSensorChanged(SensorEvent event) {
@@ -87,13 +76,13 @@ public class AccelerometerSensor implements SensorEventListener {
      * @param accelerometerValue
      */
     private void registerNewAccelerometerValue(long timestamp, AccelerometerValue accelerometerValue) {
-        //Récupération dans un tableau des valeurs de l'accéléromètre
+        // Récupération dans un tableau des valeurs de l'accéléromètre
         float[] accelerometerValue_a = new float[3];
         accelerometerValue_a[0] = accelerometerValue.getXvalue();
         accelerometerValue_a[1] = accelerometerValue.getYvalue();
         accelerometerValue_a[2] = accelerometerValue.getZvalue();
 
-        //Détermination de l'orientation du vecteur Z
+        // Détermination de l'orientation du vecteur Z
         OrientationZVectorCounter++;
         accelerationX[OrientationZVectorCounter % ACCELERATION_SIZE] = accelerometerValue_a[0];
         accelerationY[OrientationZVectorCounter % ACCELERATION_SIZE] = accelerometerValue_a[1];
@@ -110,16 +99,17 @@ public class AccelerometerSensor implements SensorEventListener {
         orientationZ[1] = orientationZ[1] / normZ;
         orientationZ[2] = orientationZ[2] / normZ;
 
-        //suppression de la gravité sur la composante de l'accélération portée par Z
+        // Suppression de la gravité sur la composante de l'accélération portée par Z
         float realZ = VecMath.dotMult(orientationZ, accelerometerValue_a) - normZ;
         accelerometerCounter++;
         accelerometerRecord_a[accelerometerCounter % ACCELEROMETER_RECORD_SIZE] = realZ;
 
         float velocity = VecMath.vectorSum(accelerometerRecord_a);
 
-        /*
-        Détermination du pas : si l'accélération calculée sur les ACCELEROMETER_RECORD_SIZE derniers records est suffisamment grande, et que l'accélération au temps t-1 est suffisamment petite, et que le temps est sufisamment grand, on considère qu'un pas est fait
-         */
+        /* Détermination du pas : si l'accélération calculée sur les ACCELEROMETER_RECORD_SIZE
+        derniers records est suffisamment grande, et que l'accélération au temps t-1 est
+        suffisamment petite, et que le temps est sufisamment grand, on considère qu'un pas est fait
+        */
         if(velocity > VELOCITY_THRESHOLD && oldVelocity <= VELOCITY_THRESHOLD && timestamp - lastTimestamp > TIMESTAMP_THRESHOLD){
             stepDetected(timestamp);
             lastTimestamp = timestamp;
@@ -134,10 +124,9 @@ public class AccelerometerSensor implements SensorEventListener {
      */
     public void stepDetected(long timestamp){
         stepCounter++;
-        display.setStepCounterLabel();
+        // display.setStepCounterLabel();
     }
 
-    public void onAccuracyChanged(Sensor sensor, int accuracy) {
-    }
+    public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 
 }
