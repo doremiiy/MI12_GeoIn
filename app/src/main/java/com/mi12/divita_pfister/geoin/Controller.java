@@ -8,7 +8,7 @@ import com.google.android.gms.maps.model.LatLng;
  */
 public class Controller {
     public MapsActivity display;
-    private GpsSensor gps;
+    public GpsSensor gps;
     private AccelerometerSensor accelerometer;
     private OrientationSensor orientation;
 
@@ -59,12 +59,14 @@ public class Controller {
         stepCounter++;
         display.setLabel1(stepCounter);
 
-        GpsValue gpsValue = gps.getLastPosition();
-        display.setUserPosition(gpsValue);
-        display.setLabel2(gpsValue.accuracy);
+        if(gps.isReady()) {
+            GpsValue gpsValue = gps.getLastPosition();
+            display.setUserPosition(gpsValue);
+            display.setLabel2(gpsValue.accuracy);
+        }
     }
 
-    public void gpsIsready(){
+    public void gpsIsReady(){
         display.setLabel3(true);
     }
 

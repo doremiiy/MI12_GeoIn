@@ -33,7 +33,7 @@ public class GpsSensor {
                         location.getAccuracy(), location.getTime()
                 );
                 if (!isReady) {
-                    controller.gpsIsready();
+                    controller.gpsIsReady();
                     isReady = true;
                 }
             }

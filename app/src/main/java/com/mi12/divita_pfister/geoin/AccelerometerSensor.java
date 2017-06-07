@@ -16,10 +16,10 @@ public class AccelerometerSensor implements SensorEventListener {
     private Sensor sensorAccelerometer;
 
     private int ACCELEROMETER_RECORD_SIZE = 10;
-    private float VELOCITY_THRESHOLD = 4f;
+    private float VELOCITY_THRESHOLD = 7f;
     private int TIMESTAMP_THRESHOLD = 250000000;
     private int ACCELERATION_SIZE = 50;
-    private int SENSOR_DELAY = 10000;
+    private int SENSOR_DELAY = SensorManager.SENSOR_DELAY_FASTEST;
 
     private float[] accelerometerRecord_a = new float[ACCELEROMETER_RECORD_SIZE];
     private int accelerometerCounter = 0;
@@ -42,7 +42,7 @@ public class AccelerometerSensor implements SensorEventListener {
 
         mSensorManager = (SensorManager) controller.display.getSystemService(Context.SENSOR_SERVICE);
         sensorAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-        mSensorManager.registerListener(this, sensorAccelerometer, SensorManager.SENSOR_DELAY_FASTEST);
+        mSensorManager.registerListener(this, sensorAccelerometer, SENSOR_DELAY);
     }
 
 

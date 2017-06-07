@@ -1,5 +1,6 @@
 package com.mi12.divita_pfister.geoin;
 
+import android.content.pm.PackageManager;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.widget.TextView;
@@ -98,4 +99,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         gpsReady.setText(Boolean.toString(gpsIs_ready));
     }
 
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults ) {
+        switch (requestCode){
+            case 10 :
+                if (grantResults.length > 0 &&  grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                    controller.gps.configure();
+                return;
+        }
+    }
 }
