@@ -30,10 +30,14 @@ public class AccelerometerValue {
     }
 
     public String getFormattedString() {
-        return Float.toString(this.X) + " " + Float.toString(this.Y) + " " + Float.toString(this.Z);
+        return Float.toString(this.X) + " " +
+                Float.toString(this.Y) + " " +
+                Float.toString(this.Z);
     }
 
     public double getNorm() {
-        return Math.sqrt(Math.pow(this.getXvalue(), 2) + Math.pow(this.getYvalue(), 2) + Math.pow(this.getZvalue(), 2));
+        return Math.sqrt(Math.pow(this.getXvalue(), 2) +
+                Math.pow(this.getYvalue(), 2) +
+                Math.pow(this.getZvalue(), 2));
     }
 }
