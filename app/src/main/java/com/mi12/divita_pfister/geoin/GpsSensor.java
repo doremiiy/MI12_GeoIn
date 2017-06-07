@@ -13,7 +13,7 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 
-//TODO: add timestamps info and return a lastvalue only if it's not too old
+
 public class GpsSensor {
 
     private MapsActivity display;
@@ -23,7 +23,7 @@ public class GpsSensor {
     private GpsValue lastPosition;
     private boolean isReady;
 
-    public GpsSensor(final MapsActivity display) {
+    public GpsSensor (final MapsActivity display) {
         this.display = display;
         mlocationManager = (LocationManager) display.getSystemService(Context.LOCATION_SERVICE);
         mlocationListener = new LocationListener() {
@@ -33,7 +33,6 @@ public class GpsSensor {
                         location.getAccuracy(), location.getTime()
                 );
                 isReady = true;
-                display.setUserPosition(lastPosition);
             }
 
             public void onStatusChanged(String provider, int status, Bundle extras) {}
@@ -69,8 +68,8 @@ public class GpsSensor {
     /**
      * Configure GpsSensor to get new value Twice per seconde if the position has moved by 20cm.
      */
-    public void configure() {
-        mlocationManager.requestLocationUpdates("gps", 500, 0.2f, mlocationListener);
+    public void configure () {
+        mlocationManager.requestLocationUpdates("gps", 500, 0, mlocationListener);
     }
 
     /**
@@ -86,7 +85,7 @@ public class GpsSensor {
      * return.
      * @return boolean
      */
-    public boolean isReady(){
+    public boolean isReady (){
         return this.isReady;
     }
 }

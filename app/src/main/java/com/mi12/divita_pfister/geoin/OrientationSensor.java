@@ -15,14 +15,11 @@ public class OrientationSensor implements SensorEventListener {
     private float[] mRotationMatrix = new float[9];
     private float[] mOrientationAngles = new float[3];
 
-    private MapsActivity display;
-
     private SensorManager mSensorManager;
     private Sensor sensorAccelerometer, sensorMagneticField;
     private int SENSOR_DELAY = 1000;
 
     public OrientationSensor(MapsActivity display){
-        this.display = display;
 
         mSensorManager = (SensorManager) display.getSystemService(Context.SENSOR_SERVICE);
         sensorAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
