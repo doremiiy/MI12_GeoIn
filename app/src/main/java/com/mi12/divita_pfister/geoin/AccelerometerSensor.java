@@ -10,7 +10,7 @@ import android.hardware.SensorManager;
 
 public class AccelerometerSensor implements SensorEventListener {
 
-    private MapsActivity display;
+    private Controller controller;
 
     private SensorManager mSensorManager;
     private Sensor sensorAccelerometer;
@@ -25,7 +25,6 @@ public class AccelerometerSensor implements SensorEventListener {
     private int accelerometerCounter = 0;
     private long lastTimestamp = 0;
     private float oldVelocity = 0;
-    private int stepCounter = 0;
     private int orientationZVectorCounter = 0;
     private float[] accelerationX = new float[ACCELERATION_SIZE];
     private float[] accelerationY = new float[ACCELERATION_SIZE];
@@ -35,24 +34,19 @@ public class AccelerometerSensor implements SensorEventListener {
 
     /**
      * Constructeur
-     * @param MapsActivity display
+     * @param Controller controller
      */
-    public AccelerometerSensor(MapsActivity display) {
-        this.display = display;
+    public AccelerometerSensor(Controller controller) {
 
-        mSensorManager = (SensorManager) display.getSystemService(Context.SENSOR_SERVICE);
+        this.controller = controller;
+
+        mSensorManager = (SensorManager) controller.display.getSystemService(Context.SENSOR_SERVICE);
         sensorAccelerometer = mSensorManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
-
         mSensorManager.registerListener(this, sensorAccelerometer, SensorManager.SENSOR_DELAY_FASTEST);
     }
 
-    /**
-     * Retourne le nombre de pas depuis la dernière remise à 0
-     * @return int
-     */
-    public int getStepCounter() {
-        return this.stepCounter;
-    }
+
+
 
     /**
      * méthode appelée lorsqu'une nouvelle valeur de l'accélerometre est recue
@@ -106,21 +100,13 @@ public class AccelerometerSensor implements SensorEventListener {
         suffisamment petite, et que le temps est sufisamment grand, on considère qu'un pas est fait
         */
         if(velocity > VELOCITY_THRESHOLD && oldVelocity <= VELOCITY_THRESHOLD && timestamp - lastTimestamp > TIMESTAMP_THRESHOLD){
-            stepDetected(timestamp);
+            controller.onStepDetected(timestamp);
             lastTimestamp = timestamp;
         }
 
         oldVelocity = velocity;
     }
 
-    /**
-     * Fonction appelée lorsqu'un pas est detecté. On récupère également le timestamp pour traitemements postérieurs
-     * @param timestamp
-     */
-    public void stepDetected(long timestamp){
-        stepCounter++;
-        // display.setStepCounterLabel();
-    }
 
     public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 
