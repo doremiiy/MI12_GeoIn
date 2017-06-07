@@ -31,12 +31,12 @@ public class AccelerometerSensor implements SensorEventListener {
     private long lastTimestamp = 0;
     private float oldVelocity = 0;
     private int stepCounter = 0;
-    private int OrientationZVectorCounter = 0;
+    private int orientationZVectorCounter = 0;
     private float[] accelerationX = new float[ACCELERATION_SIZE];
     private float[] accelerationY = new float[ACCELERATION_SIZE];
     private float[] accelerationZ = new float[ACCELERATION_SIZE];
 
-    private VectorMath VecMath = new VectorMath();
+    private VectorMath vecMath = new VectorMath();
 
     /**
      * Constructeur
@@ -83,28 +83,28 @@ public class AccelerometerSensor implements SensorEventListener {
         accelerometerValue_a[2] = accelerometerValue.getZvalue();
 
         // Détermination de l'orientation du vecteur Z
-        OrientationZVectorCounter++;
-        accelerationX[OrientationZVectorCounter % ACCELERATION_SIZE] = accelerometerValue_a[0];
-        accelerationY[OrientationZVectorCounter % ACCELERATION_SIZE] = accelerometerValue_a[1];
-        accelerationZ[OrientationZVectorCounter % ACCELERATION_SIZE] = accelerometerValue_a[2];
+        orientationZVectorCounter++;
+        accelerationX[orientationZVectorCounter % ACCELERATION_SIZE] = accelerometerValue_a[0];
+        accelerationY[orientationZVectorCounter % ACCELERATION_SIZE] = accelerometerValue_a[1];
+        accelerationZ[orientationZVectorCounter % ACCELERATION_SIZE] = accelerometerValue_a[2];
 
         float[] orientationZ = new float[3];
-        orientationZ[0] = VecMath.vectorSum(accelerationX) / Math.min(OrientationZVectorCounter, ACCELERATION_SIZE);
-        orientationZ[1] = VecMath.vectorSum(accelerationY) / Math.min(OrientationZVectorCounter, ACCELERATION_SIZE);
-        orientationZ[2] = VecMath.vectorSum(accelerationZ) / Math.min(OrientationZVectorCounter, ACCELERATION_SIZE);
+        orientationZ[0] = vecMath.vectorSum(accelerationX) / Math.min(orientationZVectorCounter, ACCELERATION_SIZE);
+        orientationZ[1] = vecMath.vectorSum(accelerationY) / Math.min(orientationZVectorCounter, ACCELERATION_SIZE);
+        orientationZ[2] = vecMath.vectorSum(accelerationZ) / Math.min(orientationZVectorCounter, ACCELERATION_SIZE);
 
-        float normZ = VecMath.normalizeVector(orientationZ);
+        float normZ = vecMath.normalizeVector(orientationZ);
 
         orientationZ[0] = orientationZ[0] / normZ;
         orientationZ[1] = orientationZ[1] / normZ;
         orientationZ[2] = orientationZ[2] / normZ;
 
         // Suppression de la gravité sur la composante de l'accélération portée par Z
-        float realZ = VecMath.dotMult(orientationZ, accelerometerValue_a) - normZ;
+        float realZ = vecMath.dotMult(orientationZ, accelerometerValue_a) - normZ;
         accelerometerCounter++;
         accelerometerRecord_a[accelerometerCounter % ACCELEROMETER_RECORD_SIZE] = realZ;
 
-        float velocity = VecMath.vectorSum(accelerometerRecord_a);
+        float velocity = vecMath.vectorSum(accelerometerRecord_a);
 
         /* Détermination du pas : si l'accélération calculée sur les ACCELEROMETER_RECORD_SIZE
         derniers records est suffisamment grande, et que l'accélération au temps t-1 est
