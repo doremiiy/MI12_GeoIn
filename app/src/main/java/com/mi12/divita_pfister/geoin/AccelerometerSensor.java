@@ -30,8 +30,6 @@ public class AccelerometerSensor implements SensorEventListener {
     private float[] accelerationY = new float[ACCELERATION_SIZE];
     private float[] accelerationZ = new float[ACCELERATION_SIZE];
 
-    private VectorMath vecMath = new VectorMath();
-
     /**
      * Constructeur
      * @param Controller controller
@@ -78,22 +76,22 @@ public class AccelerometerSensor implements SensorEventListener {
         accelerationZ[orientationZVectorCounter % ACCELERATION_SIZE] = accelerometerValue_a[2];
 
         float[] orientationZ = new float[3];
-        orientationZ[0] = vecMath.vectorSum(accelerationX) / Math.min(orientationZVectorCounter, ACCELERATION_SIZE);
-        orientationZ[1] = vecMath.vectorSum(accelerationY) / Math.min(orientationZVectorCounter, ACCELERATION_SIZE);
-        orientationZ[2] = vecMath.vectorSum(accelerationZ) / Math.min(orientationZVectorCounter, ACCELERATION_SIZE);
+        orientationZ[0] = VectorMath.vectorSum(accelerationX) / Math.min(orientationZVectorCounter, ACCELERATION_SIZE);
+        orientationZ[1] = VectorMath.vectorSum(accelerationY) / Math.min(orientationZVectorCounter, ACCELERATION_SIZE);
+        orientationZ[2] = VectorMath.vectorSum(accelerationZ) / Math.min(orientationZVectorCounter, ACCELERATION_SIZE);
 
-        float normZ = vecMath.normalizeVector(orientationZ);
+        float normZ = VectorMath.normalizeVector(orientationZ);
 
         orientationZ[0] = orientationZ[0] / normZ;
         orientationZ[1] = orientationZ[1] / normZ;
         orientationZ[2] = orientationZ[2] / normZ;
 
         // Suppression de la gravité sur la composante de l'accélération portée par Z
-        float realZ = vecMath.dotMult(orientationZ, accelerometerValue_a) - normZ;
+        float realZ = VectorMath.dotMult(orientationZ, accelerometerValue_a) - normZ;
         accelerometerCounter++;
         accelerometerRecord_a[accelerometerCounter % ACCELEROMETER_RECORD_SIZE] = realZ;
 
-        float velocity = vecMath.vectorSum(accelerometerRecord_a);
+        float velocity = VectorMath.vectorSum(accelerometerRecord_a);
 
         /* Détermination du pas : si l'accélération calculée sur les ACCELEROMETER_RECORD_SIZE
         derniers records est suffisamment grande, et que l'accélération au temps t-1 est

@@ -4,9 +4,10 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_weight="100"
+    android:keepScreenOn="true"
     android:orientation="vertical"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp">
+    android:paddingLeft="0dp"
+    android:paddingRight="0dp">
 
     <android.support.constraint.ConstraintLayout
         android:layout_width="match_parent"
@@ -22,10 +23,9 @@
             android:layout_marginRight="8dp"
             android:layout_marginTop="8dp"
             android:layout_weight="20"
-            android:text="TextView"
             map:layout_constraintBottom_toBottomOf="parent"
             map:layout_constraintHorizontal_bias="0.51"
-            map:layout_constraintLeft_toRightOf="@+id/gps_ready"
+            map:layout_constraintLeft_toRightOf="@+id/app_mode"
             map:layout_constraintRight_toRightOf="parent"
             map:layout_constraintTop_toTopOf="parent"
             map:layout_constraintVertical_bias="0.5" />
@@ -39,16 +39,15 @@
             android:layout_marginRight="8dp"
             android:layout_marginTop="8dp"
             android:layout_weight="20"
-            android:text="TextView"
             map:layout_constraintBottom_toBottomOf="parent"
-            map:layout_constraintLeft_toLeftOf="parent"
-            map:layout_constraintTop_toTopOf="parent"
-            map:layout_constraintVertical_bias="0.5"
             map:layout_constraintHorizontal_bias="0.5"
-            map:layout_constraintRight_toLeftOf="@+id/gps_ready" />
+            map:layout_constraintLeft_toLeftOf="parent"
+            map:layout_constraintRight_toLeftOf="@+id/app_mode"
+            map:layout_constraintTop_toTopOf="parent"
+            map:layout_constraintVertical_bias="0.5" />
 
         <TextView
-            android:id="@+id/gps_ready"
+            android:id="@+id/app_mode"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginBottom="8dp"
@@ -56,7 +55,6 @@
             android:layout_marginRight="8dp"
             android:layout_marginTop="8dp"
             android:layout_weight="20"
-            android:text="False"
             map:layout_constraintBottom_toBottomOf="parent"
             map:layout_constraintLeft_toLeftOf="parent"
             map:layout_constraintRight_toRightOf="parent"

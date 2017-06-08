@@ -1,7 +1,7 @@
 package com.mi12.divita_pfister.geoin;
 
 
-import com.google.android.gms.maps.model.LatLng;
+import android.util.Log;
 
 /**
  *
@@ -13,8 +13,9 @@ public class Controller {
     private OrientationSensor orientation;
 
     public float STEP_DISTANCE = 0.75f;
-
     public int MAX_HISTORY = 100;
+    public  int RESET_INTERVAL = 10;
+
     private int historyPointer =0;
     private HistoryValue[] history = new HistoryValue[MAX_HISTORY];
     private int stepCounter = 0;
@@ -27,11 +28,36 @@ public class Controller {
         this.display = display;
         this.gps = new GpsSensor(this);
         this.accelerometer = new AccelerometerSensor(this);
-        this.orientation = new OrientationSensor(this.display);
+        this.orientation = new OrientationSensor(this.display);;
     }
 
-    private boolean isIndoorMode() {
-        return false;
+    private boolean recordHistoryValue (boolean reset, boolean isIndoorMode, GpsValue gpsValue, long timestamp) {
+        if (history[(historyPointer - 1 + MAX_HISTORY) % MAX_HISTORY] == null) {
+            reset = true;
+            if(isIndoorMode) {
+                return false;
+            }
+        }
+        StepPosition stepPosition;
+        if(reset && !isIndoorMode) {
+            stepPosition = new StepPosition(
+                    new double[]{gpsValue.getLatitude(), gpsValue.getLongitude()},
+                    gpsValue.getDatetime()
+            );
+        } else {
+            stepPosition = Position.addStepDistance(
+                    history[(historyPointer - 1 + MAX_HISTORY) % MAX_HISTORY].stepPosition,
+                    STEP_DISTANCE,
+                    orientation.getOrientationAngles().getAzimuth(),
+                    timestamp
+            );
+        }
+        history[historyPointer] = new HistoryValue(
+                stepPosition,
+                gpsValue,
+                isIndoorMode
+        );
+        return true;
     }
 
     /**
@@ -39,51 +65,36 @@ public class Controller {
      * @param timestamp
      */
     public void onStepDetected(long timestamp){
-        stepCounter++;
-        display.setLabel1(stepCounter);
-
         if(gps.isReady()) {
             GpsValue gpsValue = gps.getLastPosition();
-            display.setUserPosition(gpsValue);
-            display.setLabel2(gpsValue.getAccuracy());
-
-            StepPosition temp;
-            if (history[(historyPointer - 1) % MAX_HISTORY] == null){
-                temp = new StepPosition(
-                        new double[]{gpsValue.getLatitude(), gpsValue.getLongitude()},
-                        gpsValue.getDatetime()
-                );
-            } else {
-                // TODO: Check if roll and pitch are good enough
-                temp = Position.addStepDistance(
-                        history[(historyPointer - 1) % MAX_HISTORY].stepPosition,
-                        STEP_DISTANCE,
-                        orientation.getOrientationAngles().getAzimuth(),
-                        timestamp
-                );
+            StepPosition stepPosition;
+            boolean isIndoorMode = gps.getIndoorMode();
+            boolean reset = false;
+            if (
+                    history[(historyPointer - 1 + MAX_HISTORY) % MAX_HISTORY] != null &&
+                    history[(historyPointer - 1 + MAX_HISTORY) % MAX_HISTORY].isIndoorMode &&
+                            isIndoorMode
+                    ){
+                reset = true;
             }
-            history[historyPointer % MAX_HISTORY] = new HistoryValue(
-                    temp,
-                    gpsValue,
-                    isIndoorMode()
-            );
-            historyPointer++;
+            if(!isIndoorMode && historyPointer % RESET_INTERVAL == 0){
+                reset = true;
+            }
+            if(recordHistoryValue(reset, isIndoorMode, gpsValue, timestamp)) {
+                if (isIndoorMode) {
+                    display.setUserPosition(history[historyPointer].gpsPosition);
+                } else {
+                    display.setUserPosition(history[historyPointer].stepPosition);
+                }
+                historyPointer = (historyPointer + 1) % MAX_HISTORY;
+            }
+            // Debug
+            stepCounter++;
+            display.setLabel1(stepCounter);
         }
     }
 
-    public void gpsIsReady(){
-        display.setLabel3(true);
+    public void onGpsReady(GpsValue firstPosition){
+        display.setUserPosition(firstPosition);
     }
-
-    /**
-     * Retourne le nombre de pas depuis la dernière remise à 0
-     * @return int
-     */
-    public int getStepCounter() {
-        return this.stepCounter;
-    }
-
-    /**
-     * Fonction appelée lorsqu'un pas est detecté. On récupère également le timestamp pour traitemements postérieurs
-     */
 }

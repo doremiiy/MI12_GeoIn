@@ -12,7 +12,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
-import com.google.android.gms.maps.model.CircleOptions;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -24,7 +23,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private Marker markerPosition;
 
-    private TextView stepCounter, gpsAccuracy, gpsReady;
+    private TextView stepCounter, gpsAccuracy, appMode;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -38,7 +37,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
 
         stepCounter = (TextView)findViewById(R.id.step_counter);
         gpsAccuracy = (TextView)findViewById(R.id.gps_accuracy);
-        gpsReady = (TextView)findViewById(R.id.gps_ready);
+        appMode = (TextView)findViewById(R.id.app_mode);
     }
 
     @Override
@@ -72,7 +71,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
      * Print the user's position on the map.
      * @param position
      */
-    public void setUserPosition (GpsValue position) {
+    public void setUserPosition (Position position) {
         LatLng myLaLn = new LatLng(position.latitude, position.longitude);
 
         CameraPosition current = mMap.getCameraPosition();
@@ -89,15 +88,14 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         markerPosition.setPosition(myLaLn);
     }
 
+
     public void setLabel1(int step_counter) {
         stepCounter.setText(Integer.toString(step_counter));
     }
-    public void setLabel2(float gps_accuracy) {
+    public void printGpsAccuracy(float gps_accuracy) {
         gpsAccuracy.setText(Float.toString(gps_accuracy));
     }
-    public void setLabel3(boolean gpsIs_ready) {
-        gpsReady.setText(Boolean.toString(gpsIs_ready));
-    }
+    public void printMode(boolean mode) {appMode.setText(mode ? "Indoor Mode" : "Outdoor Mode");}
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults ) {

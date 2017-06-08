@@ -16,26 +16,35 @@ import android.support.v4.app.ActivityCompat;
 
 public class GpsSensor {
 
+    public int SENSOR_DELAY = 250;
+    private int MAX_VALUES = 10;
+    public float INDOOR_2_OUTDOOR_THRESHOLD = 6f * MAX_VALUES;
+    public float OUTDOOR_2_INDOOR_THRESHOLD = 8f * MAX_VALUES;
+
     private Controller controller;
-    private LocationListener mlocationListener;
-    private LocationManager mlocationManager;
+    private LocationListener locationListener;
+    private LocationManager locationManager;
 
     private GpsValue lastPosition;
     private boolean isReady;
+    private int pointer = 0;
+    private boolean isIndoorMode = false;
+    private float lastAccuracies[] = new float[MAX_VALUES];
 
     public GpsSensor (final Controller controller) {
         this.controller = controller;
-        mlocationManager = (LocationManager) controller.display.getSystemService(Context.LOCATION_SERVICE);
-        mlocationListener = new LocationListener() {
+        locationManager = (LocationManager) controller.display.getSystemService(Context.LOCATION_SERVICE);
+        locationListener = new LocationListener() {
             public void onLocationChanged(Location location) {
                 lastPosition = new GpsValue(
                         new double[]{location.getLatitude(), location.getLongitude()},
                         location.getAccuracy(), location.getTime()
                 );
                 if (!isReady) {
-                    controller.gpsIsReady();
+                    controller.onGpsReady(lastPosition);
                     isReady = true;
                 }
+                recordNewGpsValue(lastPosition.getAccuracy());
             }
 
             public void onStatusChanged(String provider, int status, Bundle extras) {}
@@ -72,7 +81,7 @@ public class GpsSensor {
      * Configure GpsSensor to get new value Twice per seconde if the position has moved by 20cm.
      */
     public void configure () {
-        mlocationManager.requestLocationUpdates("gps", 500, 0, mlocationListener);
+        locationManager.requestLocationUpdates("gps", SENSOR_DELAY, 0, locationListener);
     }
 
     /**
@@ -90,5 +99,20 @@ public class GpsSensor {
      */
     public boolean isReady (){
         return this.isReady;
+    }
+
+    public boolean getIndoorMode() { return isIndoorMode; }
+
+    public void recordNewGpsValue(float accuracy) {
+        lastAccuracies[pointer] = accuracy;
+        if(VectorMath.vectorSum(lastAccuracies) >= OUTDOOR_2_INDOOR_THRESHOLD && this.isIndoorMode == false){
+            this.isIndoorMode = true;
+        }
+        if(VectorMath.vectorSum(lastAccuracies) < INDOOR_2_OUTDOOR_THRESHOLD && this.isIndoorMode == true){
+            this.isIndoorMode = false;
+        }
+        pointer = (pointer + 1) % MAX_VALUES;
+        controller.display.printMode(isIndoorMode);
+        controller.display.printGpsAccuracy(accuracy);
     }
 }
