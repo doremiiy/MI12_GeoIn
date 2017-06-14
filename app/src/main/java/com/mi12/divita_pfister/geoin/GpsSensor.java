@@ -17,9 +17,9 @@ import android.support.v4.app.ActivityCompat;
 public class GpsSensor {
 
     public int SENSOR_DELAY = 250;
-    private int MAX_VALUES = 10;
-    public float INDOOR_2_OUTDOOR_THRESHOLD = 6f * MAX_VALUES;
-    public float OUTDOOR_2_INDOOR_THRESHOLD = 8f * MAX_VALUES;
+    private static int MAX_VALUES = 10;
+    public static float INDOOR_2_OUTDOOR_THRESHOLD = 7f * MAX_VALUES;
+    public static float OUTDOOR_2_INDOOR_THRESHOLD = 7f * MAX_VALUES;
 
     private Controller controller;
     private LocationListener locationListener;
@@ -112,7 +112,6 @@ public class GpsSensor {
             this.isIndoorMode = false;
         }
         pointer = (pointer + 1) % MAX_VALUES;
-        controller.display.printMode(isIndoorMode);
-        controller.display.printGpsAccuracy(accuracy);
+        controller.display.printMode(isIndoorMode, accuracy);
     }
 }

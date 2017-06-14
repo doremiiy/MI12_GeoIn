@@ -16,7 +16,7 @@ public class AccelerometerSensor implements SensorEventListener {
     private Sensor sensorAccelerometer;
 
     private int ACCELEROMETER_RECORD_SIZE = 10;
-    private float VELOCITY_THRESHOLD = 7f;
+    public static float VELOCITY_THRESHOLD = 12f;
     private int TIMESTAMP_THRESHOLD = 250000000;
     private int ACCELERATION_SIZE = 50;
     private int SENSOR_DELAY = SensorManager.SENSOR_DELAY_FASTEST;

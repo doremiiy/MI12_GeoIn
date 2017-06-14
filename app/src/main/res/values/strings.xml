@@ -2,4 +2,5 @@
     <string name="app_name">GeoIn</string>
     <string name="title_activity_maps">GeoIn</string>
     <string name="google_map_key">AIzaSyAQlbH3B9j9qLiOxD3CU41dZHjXOWI6m3A</string>
+    <string name="settings_name">Settings</string>
 </resources>

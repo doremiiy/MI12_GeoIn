@@ -12,9 +12,9 @@ public class Controller {
     private AccelerometerSensor accelerometer;
     private OrientationSensor orientation;
 
-    public float STEP_DISTANCE = 0.75f;
+    public static float STEP_DISTANCE = 0.75f;
     public int MAX_HISTORY = 100;
-    public  int RESET_INTERVAL = 10;
+    public int RESET_INTERVAL = 10;
 
     private int historyPointer =0;
     private HistoryValue[] history = new HistoryValue[MAX_HISTORY];
@@ -89,11 +89,14 @@ public class Controller {
             }
             // Debug
             stepCounter++;
-            display.setLabel1(stepCounter);
+            display.setStepCounterLabel(stepCounter);
         }
     }
 
     public void onGpsReady(GpsValue firstPosition){
         display.setUserPosition(firstPosition);
     }
+
+    public void setStepCounter(int value){this.stepCounter = value;}
+    public int getStepCounter(){return this.stepCounter;}
 }

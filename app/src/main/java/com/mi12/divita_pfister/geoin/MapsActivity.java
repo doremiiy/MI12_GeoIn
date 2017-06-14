@@ -1,8 +1,11 @@
 package com.mi12.divita_pfister.geoin;
 
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.view.View;
+import android.widget.Button;
 import android.widget.TextView;
 
 import com.google.android.gms.maps.CameraUpdate;
@@ -23,7 +26,8 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     private GoogleMap mMap;
     private Marker markerPosition;
 
-    private TextView stepCounter, gpsAccuracy, appMode;
+    private TextView appMode;
+    private Button stepCounter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,8 +39,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         mapFragment.getMapAsync(this);
         controller = new Controller(this);
 
-        stepCounter = (TextView)findViewById(R.id.step_counter);
-        gpsAccuracy = (TextView)findViewById(R.id.gps_accuracy);
+        stepCounter = (Button) findViewById(R.id.step_counter);
         appMode = (TextView)findViewById(R.id.app_mode);
     }
 
@@ -89,13 +92,12 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     }
 
 
-    public void setLabel1(int step_counter) {
+    public void setStepCounterLabel(int step_counter) {
         stepCounter.setText(Integer.toString(step_counter));
     }
-    public void printGpsAccuracy(float gps_accuracy) {
-        gpsAccuracy.setText(Float.toString(gps_accuracy));
+    public void printMode(boolean mode, float gps_accuracy) {
+        appMode.setText(((mode ? "Indoor" : "Outdoor") + " (" +Float.toString(gps_accuracy)+")" ));
     }
-    public void printMode(boolean mode) {appMode.setText(mode ? "Indoor Mode" : "Outdoor Mode");}
 
     @Override
     public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults ) {
@@ -105,5 +107,13 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
                     controller.gps.configure();
                 return;
         }
+    }
+    public void startSettingActivity(View view){
+        Intent intent = new Intent(MapsActivity.this, SettingsActivity.class);
+        startActivity(intent);
+    }
+    public void resetStepCounter(View view){
+        controller.setStepCounter(0);
+        this.setStepCounterLabel(controller.getStepCounter());
     }
 }
