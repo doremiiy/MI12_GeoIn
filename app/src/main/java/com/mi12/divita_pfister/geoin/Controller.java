@@ -72,8 +72,7 @@ public class Controller {
             boolean reset = false;
             if (
                     history[(historyPointer - 1 + MAX_HISTORY) % MAX_HISTORY] != null &&
-                    history[(historyPointer - 1 + MAX_HISTORY) % MAX_HISTORY].isIndoorMode &&
-                            isIndoorMode
+                    history[(historyPointer - 1 + MAX_HISTORY) % MAX_HISTORY].isIndoorMode && isIndoorMode
                     ){
                 reset = true;
             }
@@ -82,9 +81,9 @@ public class Controller {
             }
             if(recordHistoryValue(reset, isIndoorMode, gpsValue, timestamp)) {
                 if (isIndoorMode) {
-                    display.setUserPosition(history[historyPointer].gpsPosition);
-                } else {
                     display.setUserPosition(history[historyPointer].stepPosition);
+                } else {
+                    display.setUserPosition(history[historyPointer].gpsPosition);
                 }
                 historyPointer = (historyPointer + 1) % MAX_HISTORY;
             }

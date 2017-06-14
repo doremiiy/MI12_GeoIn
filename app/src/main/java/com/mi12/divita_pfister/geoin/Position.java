@@ -28,22 +28,21 @@ public abstract class Position {
 
     /**
      * @param distance
-     * @param bearing
+     * @param bearing (in radian)
      * @return new position of the user in coordinate
      */
     public static StepPosition addStepDistance(Position previousPosition, float distance, float bearing, long timestamp) {
         double lat1 = Math.toRadians(previousPosition.getLatitude());
         double lon1 = Math.toRadians(previousPosition.getLongitude());
-        double earthRadius = 6371;
+        double earthRadius = 6371000;
         double angularDistance = distance/earthRadius;
-        double bearingRad = Math.toRadians(bearing);
 
         double lat2 = Math.asin(
                 Math.sin(lat1) * Math.cos(angularDistance) +
-                        Math.cos(lat1) * Math.sin(angularDistance) * Math.cos(bearingRad)
+                        Math.cos(lat1) * Math.sin(angularDistance) * Math.cos(bearing)
         );
         double lon2 = lon1 + Math.atan2(
-                Math.sin(bearingRad) * Math.sin(angularDistance)*Math.cos(lat1),
+                Math.sin(bearing) * Math.sin(angularDistance)*Math.cos(lat1),
                 Math.cos(angularDistance)-Math.sin(lat1)*Math.sin(lat2)
         );
         return new StepPosition(new double[]{Math.toDegrees(lat2), Math.toDegrees(lon2)}, timestamp);

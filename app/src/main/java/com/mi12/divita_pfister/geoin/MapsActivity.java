@@ -47,7 +47,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         LatLng entreePierreGuillaumat1 = new LatLng(49.400171, 2.7999994);
         MarkerOptions markerOptions = new MarkerOptions()
                 .position(entreePierreGuillaumat1)
-                .icon(BitmapDescriptorFactory.fromResource(R.drawable.walker))
+                //.icon(BitmapDescriptorFactory.fromResource(R.drawable.walker))
                 .visible(false);
         markerPosition = mMap.addMarker(markerOptions);
 
