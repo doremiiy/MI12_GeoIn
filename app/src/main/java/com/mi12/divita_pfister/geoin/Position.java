@@ -1,33 +1,56 @@
 package com.mi12.divita_pfister.geoin;
 
-
+/**
+ * Abstract class that represents a user position
+ */
 public abstract class Position {
     protected double latitude;
     protected double longitude;
     protected long datetime;
 
+    /**
+     * Accessor
+     * @return datetime
+     */
     public long getDatetime() {
         return datetime;
     }
 
+    /**
+     * Accessor
+     * @return longitude
+     */
     public double getLongitude() {
         return longitude;
     }
 
+    /**
+     * Setter
+     * @param longitude longitude
+     */
     public void setLongitude(double longitude) {
         this.longitude = longitude;
     }
 
+    /**
+     * Accessor
+     * @return latitude
+     */
     public double getLatitude() {
         return latitude;
     }
 
+    /**
+     * Setter
+     * @param latitude latitude
+     */
     public void setLatitude(double latitude) {
         this.latitude = latitude;
     }
 
     /**
-     * @param distance
+     * adds a distance to a position knowing the orientation. Returns the new calculated poition
+     * @param distance of one step
      * @param bearing (in radian)
      * @return new position of the user in coordinate
      */

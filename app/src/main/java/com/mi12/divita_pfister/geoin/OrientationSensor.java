@@ -1,14 +1,17 @@
 package com.mi12.divita_pfister.geoin;
 
-
 import android.hardware.SensorEventListener;
 import android.hardware.Sensor;
 import android.hardware.SensorEvent;
 import android.hardware.SensorManager;
 import android.content.Context;
 
-
+/**
+ * Class that manages the orientation sensor
+ */
 public class OrientationSensor implements SensorEventListener {
+
+    private int SENSOR_DELAY = SensorManager.SENSOR_DELAY_FASTEST;
 
     private float[] mAccelerometerReading = new float[3];
     private float[] mMagnetometerReading = new float[3];
@@ -17,8 +20,11 @@ public class OrientationSensor implements SensorEventListener {
 
     private SensorManager mSensorManager;
     private Sensor sensorAccelerometer, sensorMagneticField;
-    private int SENSOR_DELAY = SensorManager.SENSOR_DELAY_FASTEST;
 
+    /**
+     * Constructor
+     * @param display maps acivity to be able to display information
+     */
     public OrientationSensor(MapsActivity display){
 
         mSensorManager = (SensorManager) display.getSystemService(Context.SENSOR_SERVICE);
@@ -29,6 +35,10 @@ public class OrientationSensor implements SensorEventListener {
         mSensorManager.registerListener(this, sensorMagneticField, SENSOR_DELAY);
     }
 
+    /**
+     * Method called when a new orientation value is recorded
+     * @param event associated event that contains the values and the timestamp
+     */
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
             System.arraycopy(
@@ -42,6 +52,10 @@ public class OrientationSensor implements SensorEventListener {
         }
     }
 
+    /**
+     *
+     * @return
+     */
     public OrientationValue getOrientationAngles() {
         mSensorManager.getRotationMatrix(
                 mRotationMatrix, null, mAccelerometerReading, mMagnetometerReading

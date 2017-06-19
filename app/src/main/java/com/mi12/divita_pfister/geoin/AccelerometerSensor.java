@@ -31,11 +31,10 @@ public class AccelerometerSensor implements SensorEventListener {
     private float[] accelerationZ = new float[ACCELERATION_SIZE];
 
     /**
-     * Constructeur
+     * Constructor
      * @param Controller controller
      */
     public AccelerometerSensor(Controller controller) {
-
         this.controller = controller;
 
         mSensorManager = (SensorManager) controller.display.getSystemService(Context.SENSOR_SERVICE);
@@ -43,12 +42,9 @@ public class AccelerometerSensor implements SensorEventListener {
         mSensorManager.registerListener(this, sensorAccelerometer, SENSOR_DELAY);
     }
 
-
-
-
     /**
-     * méthode appelée lorsqu'une nouvelle valeur de l'accélerometre est recue
-     * @param SensorEvent event
+     * Called when a new accelerometer value is read by the sensor
+     * @param SensorEvent associated event that contains the values and the timestamp
      */
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
@@ -58,18 +54,19 @@ public class AccelerometerSensor implements SensorEventListener {
     }
 
     /**
-     * Traitement réalisé sur les nouvelles valeurs d'accélération recues : estimation de la composante Z, filtrage de la gravité et déctection du pas
+     * Treatment made on the accelerometer values received :
+     * estimation of the Z axis, gravity filter and step detection
      * @param timestamp
      * @param accelerometerValue
      */
     private void registerNewAccelerometerValue(long timestamp, AccelerometerValue accelerometerValue) {
-        // Récupération dans un tableau des valeurs de l'accéléromètre
+        // Put accelerometer values into an array
         float[] accelerometerValue_a = new float[3];
         accelerometerValue_a[0] = accelerometerValue.getXvalue();
         accelerometerValue_a[1] = accelerometerValue.getYvalue();
         accelerometerValue_a[2] = accelerometerValue.getZvalue();
 
-        // Détermination de l'orientation du vecteur Z
+        // Estimation of the earth related Z axis
         orientationZVectorCounter++;
         accelerationX[orientationZVectorCounter % ACCELERATION_SIZE] = accelerometerValue_a[0];
         accelerationY[orientationZVectorCounter % ACCELERATION_SIZE] = accelerometerValue_a[1];
@@ -86,17 +83,14 @@ public class AccelerometerSensor implements SensorEventListener {
         orientationZ[1] = orientationZ[1] / normZ;
         orientationZ[2] = orientationZ[2] / normZ;
 
-        // Suppression de la gravité sur la composante de l'accélération portée par Z
+        // Filtering gravity
         float realZ = VectorMath.dotMult(orientationZ, accelerometerValue_a) - normZ;
         accelerometerCounter++;
         accelerometerRecord_a[accelerometerCounter % ACCELEROMETER_RECORD_SIZE] = realZ;
 
         float velocity = VectorMath.vectorSum(accelerometerRecord_a);
 
-        /* Détermination du pas : si l'accélération calculée sur les ACCELEROMETER_RECORD_SIZE
-        derniers records est suffisamment grande, et que l'accélération au temps t-1 est
-        suffisamment petite, et que le temps est sufisamment grand, on considère qu'un pas est fait
-        */
+        // Step detection
         if(velocity > VELOCITY_THRESHOLD && oldVelocity <= VELOCITY_THRESHOLD && timestamp - lastTimestamp > TIMESTAMP_THRESHOLD){
             controller.onStepDetected(timestamp);
             lastTimestamp = timestamp;
@@ -104,7 +98,6 @@ public class AccelerometerSensor implements SensorEventListener {
 
         oldVelocity = velocity;
     }
-
 
     public void onAccuracyChanged(Sensor sensor, int accuracy) {}
 

@@ -13,7 +13,9 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 
-
+/**
+ * Class
+ */
 public class GpsSensor {
 
     public int SENSOR_DELAY = 250;
@@ -101,14 +103,22 @@ public class GpsSensor {
         return this.isReady;
     }
 
+    /**
+     *
+     * @return
+     */
     public boolean getIndoorMode() { return isIndoorMode; }
 
+    /**
+     *
+     * @param accuracy
+     */
     public void recordNewGpsValue(float accuracy) {
         lastAccuracies[pointer] = accuracy;
-        if(VectorMath.vectorSum(lastAccuracies) >= OUTDOOR_2_INDOOR_THRESHOLD && this.isIndoorMode == false){
+        if(VectorMath.vectorSum(lastAccuracies) >= OUTDOOR_2_INDOOR_THRESHOLD && !this.isIndoorMode){
             this.isIndoorMode = true;
         }
-        if(VectorMath.vectorSum(lastAccuracies) < INDOOR_2_OUTDOOR_THRESHOLD && this.isIndoorMode == true){
+        if(VectorMath.vectorSum(lastAccuracies) < INDOOR_2_OUTDOOR_THRESHOLD && this.isIndoorMode){
             this.isIndoorMode = false;
         }
         pointer = (pointer + 1) % MAX_VALUES;
