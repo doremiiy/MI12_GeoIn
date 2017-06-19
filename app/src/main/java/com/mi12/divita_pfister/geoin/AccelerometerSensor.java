@@ -7,7 +7,9 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
-
+/**
+ * Class that define the step detector sensor
+ */
 public class AccelerometerSensor implements SensorEventListener {
 
     private Controller controller;
@@ -32,7 +34,7 @@ public class AccelerometerSensor implements SensorEventListener {
 
     /**
      * Constructor
-     * @param Controller controller
+     * @param controller is the controller that instantiate this sensor
      */
     public AccelerometerSensor(Controller controller) {
         this.controller = controller;
@@ -44,7 +46,7 @@ public class AccelerometerSensor implements SensorEventListener {
 
     /**
      * Called when a new accelerometer value is read by the sensor
-     * @param SensorEvent associated event that contains the values and the timestamp
+     * @param event associated event that contains the values and the timestamp
      */
     public void onSensorChanged(SensorEvent event) {
         if (event.sensor.getType() == Sensor.TYPE_ACCELEROMETER) {
@@ -62,9 +64,9 @@ public class AccelerometerSensor implements SensorEventListener {
     private void registerNewAccelerometerValue(long timestamp, AccelerometerValue accelerometerValue) {
         // Put accelerometer values into an array
         float[] accelerometerValue_a = new float[3];
-        accelerometerValue_a[0] = accelerometerValue.getXvalue();
-        accelerometerValue_a[1] = accelerometerValue.getYvalue();
-        accelerometerValue_a[2] = accelerometerValue.getZvalue();
+        accelerometerValue_a[0] = accelerometerValue.getXValue();
+        accelerometerValue_a[1] = accelerometerValue.getYValue();
+        accelerometerValue_a[2] = accelerometerValue.getZValue();
 
         // Estimation of the earth related Z axis
         orientationZVectorCounter++;

@@ -49,12 +49,14 @@ public abstract class Position {
     }
 
     /**
-     * adds a distance to a position knowing the orientation. Returns the new calculated poition
+     * adds a distance to a position knowing the orientation. Returns the new calculated position
      * @param distance of one step
      * @param bearing (in radian)
      * @return new position of the user in coordinate
      */
-    public static StepPosition addStepDistance(Position previousPosition, float distance, float bearing, long timestamp) {
+    public static StepPosition addStepDistance(
+            Position previousPosition, float distance, float bearing, long timestamp
+    ) {
         double lat1 = Math.toRadians(previousPosition.getLatitude());
         double lon1 = Math.toRadians(previousPosition.getLongitude());
         double earthRadius = 6371000;
@@ -68,6 +70,8 @@ public abstract class Position {
                 Math.sin(bearing) * Math.sin(angularDistance)*Math.cos(lat1),
                 Math.cos(angularDistance)-Math.sin(lat1)*Math.sin(lat2)
         );
-        return new StepPosition(new double[]{Math.toDegrees(lat2), Math.toDegrees(lon2)}, timestamp);
+        return new StepPosition(
+                new double[]{Math.toDegrees(lat2), Math.toDegrees(lon2)}, timestamp
+        );
     }
 }

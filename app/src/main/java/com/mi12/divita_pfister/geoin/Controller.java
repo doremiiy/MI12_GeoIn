@@ -25,18 +25,21 @@ public class Controller {
         this.display = display;
         this.gps = new GpsSensor(this);
         this.accelerometer = new AccelerometerSensor(this);
-        this.orientation = new OrientationSensor(this.display);;
+        this.orientation = new OrientationSensor(this.display);
     }
 
     /**
      * The method records a new gpsValue and stepPosition every time it is needed
-     * @param reset every 10 values recorded, in outdoor mode only, we set the StepPosition to the gpsValue counter draft
+     * @param reset every 10 values recorded, in outdoor mode only, we set the StepPosition to the
+     *              gpsValue counter draft
      * @param isIndoorMode is true when the detected mode is Indoor
      * @param gpsValue recorded gps value
      * @param timestamp timestamp associated with the recorded value
      * @return true if we recorded a new value, false if not
      */
-    private boolean recordHistoryValue (boolean reset, boolean isIndoorMode, GpsValue gpsValue, long timestamp) {
+    private boolean recordHistoryValue (
+            boolean reset, boolean isIndoorMode, GpsValue gpsValue, long timestamp
+    ) {
         if (history[(historyPointer - 1 + MAX_HISTORY) % MAX_HISTORY] == null) {
             reset = true;
             if(isIndoorMode) {
@@ -72,12 +75,12 @@ public class Controller {
     public void onStepDetected(long timestamp){
         if(gps.isReady()) {
             GpsValue gpsValue = gps.getLastPosition();
-            StepPosition stepPosition;
             boolean isIndoorMode = gps.getIndoorMode();
             boolean reset = false;
             if (
                     history[(historyPointer - 1 + MAX_HISTORY) % MAX_HISTORY] != null &&
-                    history[(historyPointer - 1 + MAX_HISTORY) % MAX_HISTORY].isIndoorMode && isIndoorMode
+                    history[(historyPointer - 1 + MAX_HISTORY) % MAX_HISTORY].isIndoorMode &&
+                    isIndoorMode
                     ){
                 reset = true;
             }
@@ -92,15 +95,15 @@ public class Controller {
                 }
                 historyPointer = (historyPointer + 1) % MAX_HISTORY;
             }
-            // Debug
             stepCounter++;
             display.setStepCounterLabel(stepCounter);
         }
     }
 
     /**
-     *
-     * @param firstPosition
+     * Function that is trigger when the GpsSensor is ready. It set the user position a first time
+     * without requiring stepdetection
+     * @param firstPosition is the fiert position detected by the GpsSensor
      */
     public void onGpsReady(GpsValue firstPosition){
         display.setUserPosition(firstPosition);

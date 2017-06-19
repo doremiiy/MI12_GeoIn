@@ -1,7 +1,5 @@
 package com.mi12.divita_pfister.geoin;
 
-import com.google.android.gms.maps.model.LatLng;
-
 /**
  * Class that represents a position calculated when a step is detected
  */

@@ -14,7 +14,7 @@ import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 
 /**
- * Class
+ * Class that define the GpsSensor
  */
 public class GpsSensor {
 
@@ -33,10 +33,21 @@ public class GpsSensor {
     private boolean isIndoorMode = false;
     private float lastAccuracies[] = new float[MAX_VALUES];
 
+    /**
+     * Constructor
+     * @param controller is the controller that instantiate this sensor
+     */
     public GpsSensor (final Controller controller) {
         this.controller = controller;
-        locationManager = (LocationManager) controller.display.getSystemService(Context.LOCATION_SERVICE);
+        locationManager = (LocationManager) controller
+                .display
+                .getSystemService(Context.LOCATION_SERVICE);
         locationListener = new LocationListener() {
+            /**
+             * Called when a new location value is return by the sensor
+             * @param location associated that contains the coordinates and the timestamp
+             *                 and a accuracy
+             */
             public void onLocationChanged(Location location) {
                 lastPosition = new GpsValue(
                         new double[]{location.getLatitude(), location.getLongitude()},
@@ -78,7 +89,6 @@ public class GpsSensor {
         configure();
     }
 
-
     /**
      * Configure GpsSensor to get new value Twice per seconde if the position has moved by 20cm.
      */
@@ -104,18 +114,22 @@ public class GpsSensor {
     }
 
     /**
-     *
-     * @return
+     * Give the mode the application must use
+     * @return the current mode.
      */
     public boolean getIndoorMode() { return isIndoorMode; }
 
     /**
-     *
-     * @param accuracy
+     * register a  new value in the accuracies array, calculate the mean and change the mode
+     * if needed
+     * @param accuracy is the accuracy of the Value obtain by the GpsSensor
      */
     public void recordNewGpsValue(float accuracy) {
         lastAccuracies[pointer] = accuracy;
-        if(VectorMath.vectorSum(lastAccuracies) >= OUTDOOR_2_INDOOR_THRESHOLD && !this.isIndoorMode){
+        if(
+                VectorMath.vectorSum(lastAccuracies) >= OUTDOOR_2_INDOOR_THRESHOLD
+                && !this.isIndoorMode
+        ){
             this.isIndoorMode = true;
         }
         if(VectorMath.vectorSum(lastAccuracies) < INDOOR_2_OUTDOOR_THRESHOLD && this.isIndoorMode){

@@ -23,7 +23,7 @@ public class OrientationSensor implements SensorEventListener {
 
     /**
      * Constructor
-     * @param display maps acivity to be able to display information
+     * @param display maps activity to be able to display information
      */
     public OrientationSensor(MapsActivity display){
 
@@ -53,14 +53,14 @@ public class OrientationSensor implements SensorEventListener {
     }
 
     /**
-     *
-     * @return
+     * Calculate the last orientation values obtained by the sensor
+     * @return the last orientation values calculated
      */
     public OrientationValue getOrientationAngles() {
-        mSensorManager.getRotationMatrix(
+        SensorManager.getRotationMatrix(
                 mRotationMatrix, null, mAccelerometerReading, mMagnetometerReading
         );
-        mSensorManager.getOrientation(mRotationMatrix, mOrientationAngles);
+        SensorManager.getOrientation(mRotationMatrix, mOrientationAngles);
         return new OrientationValue(mOrientationAngles);
     }
 

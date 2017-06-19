@@ -45,9 +45,12 @@ public class SettingsActivity extends AppCompatActivity implements View.OnClickL
         if (view.equals(saveButton)){
             Controller.STEP_DISTANCE = Float.parseFloat(stepEdit.getText().toString()) /100;
 
-            GpsSensor.OUTDOOR_2_INDOOR_THRESHOLD = Float.parseFloat(outdoorToIndoor.getText().toString());
-            GpsSensor.INDOOR_2_OUTDOOR_THRESHOLD = Float.parseFloat(indoorToOutdoor.getText().toString());
-            AccelerometerSensor.VELOCITY_THRESHOLD = Float.parseFloat(velocityThreshold.getText().toString());
+            GpsSensor.OUTDOOR_2_INDOOR_THRESHOLD = Float.parseFloat(
+                    outdoorToIndoor.getText().toString());
+            GpsSensor.INDOOR_2_OUTDOOR_THRESHOLD = Float.parseFloat(
+                    indoorToOutdoor.getText().toString());
+            AccelerometerSensor.VELOCITY_THRESHOLD = Float.parseFloat(
+                    velocityThreshold.getText().toString());
             this.finish();
         }
     }

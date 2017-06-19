@@ -24,7 +24,7 @@ public class AccelerometerValue {
      * Accessor
      * @return acceleration on the phone x axis
      */
-    public float getXvalue() {
+    public float getXValue() {
         return this.X;
     }
 
@@ -32,7 +32,7 @@ public class AccelerometerValue {
      * Accessor
      * @return acceleration on the phone y axis
      */
-    public float getYvalue() {
+    public float getYValue() {
         return this.Y;
     }
 
@@ -40,7 +40,7 @@ public class AccelerometerValue {
      * Accessor
      * @return acceleration on the phone z axis
      */
-    public float getZvalue() {
+    public float getZValue() {
         return this.Z;
     }
 }

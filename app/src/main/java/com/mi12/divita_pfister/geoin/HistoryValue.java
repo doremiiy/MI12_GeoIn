@@ -12,7 +12,8 @@ public class HistoryValue {
      * Constructor
      * @param stepPosition either gps value or calculated
      * @param gpsPosition recorded with LocationManager
-     * @param isIndoorMode boolean to say if the mode at the time we recorded each value was indoor or outdoor
+     * @param isIndoorMode boolean to say if the mode at the time we recorded each value was indoor
+     *                     or outdoor
      */
     public HistoryValue (StepPosition stepPosition, GpsValue gpsPosition, boolean isIndoorMode){
         this.stepPosition = stepPosition;

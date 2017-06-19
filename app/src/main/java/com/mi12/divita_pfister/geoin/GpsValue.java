@@ -1,7 +1,7 @@
 package com.mi12.divita_pfister.geoin;
 
 /**
- * Class that represens a position obtained with the gps
+ * Class that represent a position obtained with the gps
  */
 public class GpsValue extends Position {
     private float accuracy;

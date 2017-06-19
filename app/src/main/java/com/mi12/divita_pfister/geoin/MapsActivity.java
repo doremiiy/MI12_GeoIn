@@ -2,6 +2,7 @@ package com.mi12.divita_pfister.geoin;
 
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.support.annotation.NonNull;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -13,12 +14,14 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
-import com.google.android.gms.maps.model.BitmapDescriptorFactory;
 import com.google.android.gms.maps.model.CameraPosition;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.Marker;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+/**
+ * Main Activity launched when the application is started
+ */
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
     private Controller controller;
@@ -87,31 +90,56 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         CameraUpdate camUpd3 = CameraUpdateFactory.newCameraPosition(camPos);
         mMap.animateCamera(camUpd3);
 
-        if(markerPosition.isVisible() == false) markerPosition.setVisible(true);
+        if(!markerPosition.isVisible()) markerPosition.setVisible(true);
         markerPosition.setPosition(myLaLn);
     }
 
 
+    /**
+     * Set the stepCounter button to a value
+     * @param step_counter is the value
+     */
     public void setStepCounterLabel(int step_counter) {
         stepCounter.setText(Integer.toString(step_counter));
     }
+
+    /**
+     * Print the mode the application is currently using and the accuracy of that last GpsValue.
+     * @param mode is the mode the application is using
+     * @param gps_accuracy is the accuracy of the last GpsValue obtained
+     */
     public void printMode(boolean mode, float gps_accuracy) {
         appMode.setText(((mode ? "Indoor" : "Outdoor") + " (" +Float.toString(gps_accuracy)+")" ));
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String[] permissions, int[] grantResults ) {
+    public void onRequestPermissionsResult(
+            int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults
+    ) {
         switch (requestCode){
             case 10 :
-                if (grantResults.length > 0 &&  grantResults[0] == PackageManager.PERMISSION_GRANTED)
+                if (
+                        grantResults.length > 0
+                        &&  grantResults[0] == PackageManager.PERMISSION_GRANTED
+                )
                     controller.gps.configure();
                 return;
         }
     }
+
+    /**
+     * Start the settings activity
+     * @param view
+     */
     public void startSettingActivity(View view){
         Intent intent = new Intent(MapsActivity.this, SettingsActivity.class);
         startActivity(intent);
     }
+
+    /**
+     * Set the step_counter label to zero
+     * @param view
+     */
     public void resetStepCounter(View view){
         controller.setStepCounter(0);
         this.setStepCounterLabel(controller.getStepCounter());
