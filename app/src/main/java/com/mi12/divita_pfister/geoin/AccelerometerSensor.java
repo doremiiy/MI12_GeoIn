@@ -7,6 +7,8 @@ import android.hardware.SensorEvent;
 import android.hardware.SensorEventListener;
 import android.hardware.SensorManager;
 
+import java.util.Date;
+
 /**
  * Class that define the step detector sensor
  */
@@ -94,7 +96,7 @@ public class AccelerometerSensor implements SensorEventListener {
 
         // Step detection
         if(velocity > VELOCITY_THRESHOLD && oldVelocity <= VELOCITY_THRESHOLD && timestamp - lastTimestamp > TIMESTAMP_THRESHOLD){
-            controller.onStepDetected(timestamp);
+            controller.onStepDetected((new Date()).getTime());
             lastTimestamp = timestamp;
         }
 

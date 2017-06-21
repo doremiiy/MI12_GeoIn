@@ -4,6 +4,7 @@ package com.mi12.divita_pfister.geoin;
  * Abstract class that represents a user position
  */
 public abstract class Position {
+    protected static double EARTH_RADIUS = 6371000;
     protected double latitude;
     protected double longitude;
     protected long datetime;
@@ -59,8 +60,7 @@ public abstract class Position {
     ) {
         double lat1 = Math.toRadians(previousPosition.getLatitude());
         double lon1 = Math.toRadians(previousPosition.getLongitude());
-        double earthRadius = 6371000;
-        double angularDistance = distance/earthRadius;
+        double angularDistance = distance/EARTH_RADIUS;
 
         double lat2 = Math.asin(
                 Math.sin(lat1) * Math.cos(angularDistance) +
@@ -73,5 +73,20 @@ public abstract class Position {
         return new StepPosition(
                 new double[]{Math.toDegrees(lat2), Math.toDegrees(lon2)}, timestamp
         );
+    }
+
+    /**
+     * @param a is a first Position
+     * @param b is a second Position
+     * @return the distance between Position a and b
+     */
+    public static double calculateDistance(Position a, Position b){
+        double lata = Math.toRadians(a.getLatitude());
+        double lona = Math.toRadians(a.getLongitude());
+        double latb = Math.toRadians(b.getLatitude());
+        double lonb = Math.toRadians(b.getLongitude());
+
+
+        return EARTH_RADIUS * (Math.PI/2 - Math.asin(Math.sin(latb) * Math.sin(lata) + Math.cos(lonb - lona) * Math.cos(latb) * Math.cos(lata)));
     }
 }

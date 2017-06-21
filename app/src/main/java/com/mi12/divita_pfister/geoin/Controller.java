@@ -1,5 +1,6 @@
 package com.mi12.divita_pfister.geoin;
 
+
 /**
  * Central class that gather all sensors declaration
  */
@@ -16,6 +17,13 @@ public class Controller {
     private int historyPointer =0;
     private HistoryValue[] history = new HistoryValue[MAX_HISTORY];
     private int stepCounter = 0;
+
+    // Calibration
+    private boolean isCalibrated;
+    private int firstPointer = -1, calibrationCounter = 0;
+    private int MAX_STEP_CALIBRATION = 50, MIN_STEP_CALIBRATION = 20;
+    private int STEP_CALIBRATION_TIME_THRESHOLD = 10;
+    private int STEP_CALIBRATION_ACCURACY_THRESHOLD = 10;
 
     /**
      * Constructor
@@ -50,7 +58,7 @@ public class Controller {
         if(reset && !isIndoorMode) {
             stepPosition = new StepPosition(
                     new double[]{gpsValue.getLatitude(), gpsValue.getLongitude()},
-                    gpsValue.getDatetime()
+                    timestamp
             );
         } else {
             stepPosition = Position.addStepDistance(
@@ -93,10 +101,45 @@ public class Controller {
                 } else {
                     display.setUserPosition(history[historyPointer].gpsPosition);
                 }
+                if(!isCalibrated) calibrate();
                 historyPointer = (historyPointer + 1) % MAX_HISTORY;
             }
             stepCounter++;
             display.setStepCounterLabel(stepCounter);
+        }
+    }
+
+    /**
+     * Use the history of position to calibrate the user step distance.
+     */
+    private void calibrate(){
+        if(calibrationCounter > 0) calibrationCounter++;
+        boolean isGoodGpsValue = history[historyPointer].gpsPosition.getDatetime() -
+                history[historyPointer].stepPosition.getDatetime() <= STEP_CALIBRATION_TIME_THRESHOLD
+                && history[historyPointer].gpsPosition.getAccuracy() <= STEP_CALIBRATION_ACCURACY_THRESHOLD;
+        if(firstPointer == -1 && isGoodGpsValue){
+            firstPointer = historyPointer;
+            calibrationCounter = 1;
+        } else {
+            if(calibrationCounter >= MIN_STEP_CALIBRATION && calibrationCounter <= MAX_STEP_CALIBRATION )
+                if (isGoodGpsValue){
+                {
+                    STEP_DISTANCE = (float) Position.calculateDistance(history[firstPointer].gpsPosition, history[historyPointer].gpsPosition)/calibrationCounter;
+                    isCalibrated = true;
+                }
+            }
+            else {
+                if (calibrationCounter > MAX_STEP_CALIBRATION) {
+                    if (isGoodGpsValue) {
+                        firstPointer = historyPointer;
+                        calibrationCounter = 1;
+                    }
+                    else{
+                        firstPointer = -1;
+                        calibrationCounter = 0;
+                    }
+                }
+            }
         }
     }
 
