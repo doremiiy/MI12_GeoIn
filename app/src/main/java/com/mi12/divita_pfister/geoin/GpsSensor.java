@@ -13,15 +13,16 @@ import android.os.Bundle;
 import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 
+
 /**
  * Class that define the GpsSensor
  */
 public class GpsSensor {
 
-    public int SENSOR_DELAY = 250;
-    private static int MAX_VALUES = 10;
-    public static float INDOOR_2_OUTDOOR_THRESHOLD = 7f * MAX_VALUES;
-    public static float OUTDOOR_2_INDOOR_THRESHOLD = 7f * MAX_VALUES;
+    public int SENSOR_DELAY = 0;
+    public static int MAX_VALUES = 5;
+    public static float INDOOR_2_OUTDOOR_THRESHOLD = 5f * MAX_VALUES;
+    public static float OUTDOOR_2_INDOOR_THRESHOLD = 5f * MAX_VALUES;
 
     private Controller controller;
     private LocationListener locationListener;
@@ -117,7 +118,9 @@ public class GpsSensor {
      * Give the mode the application must use
      * @return the current mode.
      */
-    public boolean getIndoorMode() { return isIndoorMode; }
+    public boolean getIndoorMode() {
+        return isIndoorMode;
+    }
 
     /**
      * register a  new value in the accuracies array, calculate the mean and change the mode
@@ -127,7 +130,8 @@ public class GpsSensor {
     public void recordNewGpsValue(float accuracy) {
         lastAccuracies[pointer] = accuracy;
         if(
-                VectorMath.vectorSum(lastAccuracies) >= OUTDOOR_2_INDOOR_THRESHOLD
+                //VectorMath.vectorSum(lastAccuracies) >= OUTDOOR_2_INDOOR_THRESHOLD
+                VectorMath.vectorSum(new float[]{lastAccuracies[(MAX_VALUES + pointer-1)%MAX_VALUES], lastAccuracies[pointer]}) >= OUTDOOR_2_INDOOR_THRESHOLD * 2f/ (float)MAX_VALUES
                 && !this.isIndoorMode
         ){
             this.isIndoorMode = true;
@@ -136,6 +140,12 @@ public class GpsSensor {
             this.isIndoorMode = false;
         }
         pointer = (pointer + 1) % MAX_VALUES;
+        // near a entrance
+        StepPosition entreePierreGuillaumat1 = new StepPosition(new double[]{49.400223, 2.800120}, 0);
+        if(Position.calculateDistance(entreePierreGuillaumat1, lastPosition) < 3){
+            isIndoorMode = true;
+        }
+
         controller.display.printMode(isIndoorMode, accuracy);
     }
 }
